@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Test page</title>
+</head>
+<body>
+
+    <h3>If you see "This is DJR power" message below,
+        <br>
+        it means you can access remote database and your app is working well.
+        <br>
+        So you are good to go.</h3>
+
+    <br>
+    <br>
+
+    <h1 th:text="${dbmessage}">There is a problem on accessing remote database.</h1>
+
+</body>
+</html>
