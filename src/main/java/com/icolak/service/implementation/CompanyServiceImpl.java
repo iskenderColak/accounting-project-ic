@@ -58,21 +58,16 @@ public class CompanyServiceImpl implements CompanyService {
 
         Company company = mapperUtil.convert(findById(id), new Company());
         company.setCompanyStatus(CompanyStatus.ACTIVE);
+        userService.makeUserEnableTrueByCompany(company);
         companyRepository.save(company);
     }
 
     @Override
     public void deactivateCompanyStatus(Long id) {
 
-
         Company company = mapperUtil.convert(findById(id), new Company());
         company.setCompanyStatus(CompanyStatus.PASSIVE);
-        List<User> userList = userService.listAllUsers().stream()
-                .map(userDTO -> mapperUtil.convert(userDTO, new User()))
-                .filter(user -> user.getCompany().equals(company))
-                .collect(Collectors.toList());
-        userList.forEach(user -> user.setEnabled(false));
-        userList.forEach(user -> userService.save(mapperUtil.convert(user, new UserDTO())));
+        userService.makeUserEnableFalseByCompany(company);
         companyRepository.save(company);
     }
 
@@ -82,7 +77,6 @@ public class CompanyServiceImpl implements CompanyService {
         Company dbCompany = companyRepository.findById(companyDTO.getId()).orElseThrow();
         Company convertedCompany = mapperUtil.convert(companyDTO, new Company());
         convertedCompany.setCompanyStatus(dbCompany.getCompanyStatus());
-        //convertedCompany.setAddress(dbCompany.getAddress());
         companyRepository.save(convertedCompany);
 
         return findById(companyDTO.getId());

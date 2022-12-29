@@ -16,6 +16,7 @@ public class UserDTO {
     private String firstname;
     private String lastname;
     private String phone;
+    private Boolean enabled;
     private RoleDTO role;
     private CompanyDTO company;
     private Boolean isOnlyAdmin; // (should be true if this user is only admin of any company.)
