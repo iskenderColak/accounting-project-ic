@@ -58,5 +58,20 @@ public class CompanyController {
         return "redirect:/companies/list";
     }
 
+    @GetMapping("/update/{id}")
+    public String editCompany(@PathVariable("id") Long id, Model model) {
 
+        model.addAttribute("company", companyService.findById(id));
+        model.addAttribute("countries", StaticConstants.COUNTRY_LIST);
+
+        return "/company/company-update";
+    }
+
+    @PostMapping("/update/{id}")
+    public String updateCompany(@ModelAttribute("company") CompanyDTO companyDTO) {
+
+        companyService.update(companyDTO);
+
+        return "redirect:/companies/list";
+    }
 }
