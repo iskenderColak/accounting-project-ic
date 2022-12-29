@@ -15,7 +15,7 @@ public interface UserService {
 
     void save(UserDTO userDTO);
 
-    void makeUserEnableFalseByCompany(Company company);
+    void makeUserDisableByCompany(Company company);
 
-    void makeUserEnableTrueByCompany(Company company);
+    void makeUserEnableByCompany(Company company);
 }

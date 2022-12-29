@@ -5,7 +5,10 @@ import com.icolak.dto.CompanyDTO;
 import com.icolak.service.CompanyService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @Controller
 @RequestMapping("/companies")
@@ -35,7 +38,16 @@ public class CompanyController {
     }
 
     @PostMapping("/create")
-    public String insertCompany(@ModelAttribute CompanyDTO company) {
+    public String insertCompany(@Valid @ModelAttribute CompanyDTO company,
+                                BindingResult bindingResult) {
+
+        if (companyService.isTitleExist(company.getTitle())) {
+            bindingResult.rejectValue("title", " ", "This title already exists");
+        }
+
+        if (bindingResult.hasErrors()) {
+            return "/company/company-create";
+        }
 
         companyService.save(company);
 

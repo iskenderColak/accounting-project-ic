@@ -17,4 +17,6 @@ public interface CompanyService {
     void deactivateCompanyStatus(Long id);
 
     CompanyDTO update(CompanyDTO companyDTO);
+
+    boolean isTitleExist(String title);
 }

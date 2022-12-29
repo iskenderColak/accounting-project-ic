@@ -69,14 +69,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void makeUserEnableFalseByCompany(Company company) {
+    public void makeUserDisableByCompany(Company company) {
         List<User> userList = userRepository.findAllByCompany(company);
         userList.forEach(user -> user.setEnabled(false));
         userRepository.saveAll(userList);
     }
 
     @Override
-    public void makeUserEnableTrueByCompany(Company company) {
+    public void makeUserEnableByCompany(Company company) {
         List<User> userList = userRepository.findAllByCompany(company);
         userList.forEach(user -> user.setEnabled(true));
         userRepository.saveAll(userList);

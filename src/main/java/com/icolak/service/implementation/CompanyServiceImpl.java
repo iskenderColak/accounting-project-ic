@@ -58,7 +58,7 @@ public class CompanyServiceImpl implements CompanyService {
 
         Company company = mapperUtil.convert(findById(id), new Company());
         company.setCompanyStatus(CompanyStatus.ACTIVE);
-        userService.makeUserEnableTrueByCompany(company);
+        userService.makeUserEnableByCompany(company);
         companyRepository.save(company);
     }
 
@@ -67,7 +67,7 @@ public class CompanyServiceImpl implements CompanyService {
 
         Company company = mapperUtil.convert(findById(id), new Company());
         company.setCompanyStatus(CompanyStatus.PASSIVE);
-        userService.makeUserEnableFalseByCompany(company);
+        userService.makeUserDisableByCompany(company);
         companyRepository.save(company);
     }
 
@@ -80,5 +80,19 @@ public class CompanyServiceImpl implements CompanyService {
         companyRepository.save(convertedCompany);
 
         return findById(companyDTO.getId());
+    }
+
+    @Override
+    public boolean isTitleExist(String title) {
+
+        companyRepository.findAll().stream()
+                .map(company -> {
+                    if (company.getTitle().equals(title)) {
+                        return true;
+                    }
+                    return false;
+                });
+
+        return false;
     }
 }
