@@ -5,10 +5,7 @@ import com.icolak.dto.CompanyDTO;
 import com.icolak.service.CompanyService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/companies")
@@ -42,6 +39,24 @@ public class CompanyController {
 
         companyService.save(company);
 
-        return "redirect:/companies/create";
+        return "redirect:/companies/list";
     }
+
+    @GetMapping("/activate/{id}")
+    public String activateCompany(@PathVariable("id") Long id) {
+
+        companyService.activateCompanyStatus(id);
+
+        return "redirect:/companies/list";
+    }
+
+    @GetMapping("/deactivate/{id}")
+    public String deactivateCompany(@PathVariable("id") Long id) {
+
+        companyService.deactivateCompanyStatus(id);
+
+        return "redirect:/companies/list";
+    }
+
+
 }

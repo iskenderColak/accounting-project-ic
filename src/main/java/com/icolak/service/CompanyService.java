@@ -11,4 +11,8 @@ public interface CompanyService {
     List<CompanyDTO> listAllCompanies();
 
     void save(CompanyDTO companyDTO);
+
+    void activateCompanyStatus(Long id);
+
+    void deactivateCompanyStatus(Long id);
 }

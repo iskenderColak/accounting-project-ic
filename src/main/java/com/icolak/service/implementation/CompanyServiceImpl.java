@@ -46,4 +46,20 @@ public class CompanyServiceImpl implements CompanyService {
         company.setCompanyStatus(CompanyStatus.ACTIVE);
         companyRepository.save(company);
     }
+
+    @Override
+    public void activateCompanyStatus(Long id) {
+
+        Company company = mapperUtil.convert(findById(id), new Company());
+        company.setCompanyStatus(CompanyStatus.ACTIVE);
+        companyRepository.save(company);
+    }
+
+    @Override
+    public void deactivateCompanyStatus(Long id) {
+
+        Company company = mapperUtil.convert(findById(id), new Company());
+        company.setCompanyStatus(CompanyStatus.PASSIVE);
+        companyRepository.save(company);
+    }
 }
