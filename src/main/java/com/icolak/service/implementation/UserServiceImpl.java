@@ -25,7 +25,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO findById(Long id) {
-        return null;
+        return mapperUtil.convert(userRepository.findById(id), new UserDTO());
     }
 
     @Override
@@ -49,11 +49,7 @@ public class UserServiceImpl implements UserService {
                 .filter(user -> user.getCompany().getTitle().equals(dbUser.getCompany().getTitle()))
                 .map(user -> {
                     UserDTO dto = mapperUtil.convert(user, new UserDTO());
-                    if (user.getRole().getDescription().equals("Admin")) {
-                        dto.setIsOnlyAdmin(true);
-                    } else {
-                        dto.setIsOnlyAdmin(false);
-                    }
+                    dto.setIsOnlyAdmin(user.getRole().getDescription().equals("Admin"));
                     return dto;
                 }).collect(Collectors.toList());
     }
@@ -80,5 +76,11 @@ public class UserServiceImpl implements UserService {
         List<User> userList = userRepository.findAllByCompany(company);
         userList.forEach(user -> user.setEnabled(true));
         userRepository.saveAll(userList);
+    }
+
+    @Override
+    public boolean isUsernameExist(String username) {
+
+        return userRepository.existsByUsername(username);
     }
 }

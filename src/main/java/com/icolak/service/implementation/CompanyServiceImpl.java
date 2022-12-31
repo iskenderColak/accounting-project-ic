@@ -10,6 +10,7 @@ import com.icolak.repository.CompanyRepository;
 import com.icolak.service.CompanyService;
 import com.icolak.service.UserService;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -21,7 +22,6 @@ public class CompanyServiceImpl implements CompanyService {
 
     private final CompanyRepository companyRepository;
     private final MapperUtil mapperUtil;
-
     private final UserService userService;
 
     public CompanyServiceImpl(CompanyRepository companyRepository, MapperUtil mapperUtil, UserService userService) {
@@ -38,8 +38,21 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public List<CompanyDTO> listAllCompanies() {
-        return companyRepository.findAll(Sort.by("title")).stream()
+
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserDTO currentUserDTO = userService.findByUsername(username);
+        User dbUser = mapperUtil.convert(currentUserDTO, new User());
+
+        if (dbUser.getRole().getDescription().equals("Root User")) {
+            return companyRepository.findAll(Sort.by("title")).stream()
                 .filter(company -> company.getId() != 1)
+                .map(company -> mapperUtil.convert(company, new CompanyDTO()))
+                .sorted(Comparator.comparing(CompanyDTO::getCompanyStatus))
+                .collect(Collectors.toList());
+        }
+
+        return companyRepository.findAll().stream()
+                .filter(company -> dbUser.getCompany().getTitle().equals(company.getTitle()))
                 .map(company -> mapperUtil.convert(company, new CompanyDTO()))
                 .sorted(Comparator.comparing(CompanyDTO::getCompanyStatus))
                 .collect(Collectors.toList());

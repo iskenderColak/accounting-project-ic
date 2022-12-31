@@ -16,6 +16,11 @@ public class CompanyDtoConverter implements Converter<String, CompanyDTO> {
 
     @Override
     public CompanyDTO convert(String source) {
+
+        if (source == null || source.isBlank()) {
+            return null;
+        }
+
         return companyService.findById(Long.parseLong(source));
     }
 }

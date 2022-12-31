@@ -18,4 +18,6 @@ public interface UserService {
     void makeUserDisableByCompany(Company company);
 
     void makeUserEnableByCompany(Company company);
+
+    boolean isUsernameExist(String username);
 }
