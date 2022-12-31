@@ -2,6 +2,7 @@ package com.icolak.controller;
 
 import com.icolak.bootstrap.StaticConstants;
 import com.icolak.dto.CompanyDTO;
+import com.icolak.enums.CompanyStatus;
 import com.icolak.service.CompanyService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,15 +39,16 @@ public class CompanyController {
     }
 
     @PostMapping("/create")
-    public String insertCompany(@Valid @ModelAttribute CompanyDTO company,
-                                BindingResult bindingResult) {
+    public String insertCompany(@Valid @ModelAttribute("newCompany") CompanyDTO company,
+                                BindingResult bindingResult, Model model) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("countries", StaticConstants.COUNTRY_LIST);
+            return "/company/company-create";
+        }
 
         if (companyService.isTitleExist(company.getTitle())) {
             bindingResult.rejectValue("title", " ", "This title already exists");
-        }
-
-        if (bindingResult.hasErrors()) {
-            return "/company/company-create";
         }
 
         companyService.save(company);
@@ -80,7 +82,13 @@ public class CompanyController {
     }
 
     @PostMapping("/update/{id}")
-    public String updateCompany(@ModelAttribute("company") CompanyDTO companyDTO) {
+    public String updateCompany(@Valid @ModelAttribute("company") CompanyDTO companyDTO,
+                                BindingResult bindingResult, Model model) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("countries", StaticConstants.COUNTRY_LIST);
+            return "/company/company-update";
+        }
 
         companyService.update(companyDTO);
 
