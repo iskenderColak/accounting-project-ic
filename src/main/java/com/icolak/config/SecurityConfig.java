@@ -23,16 +23,14 @@ public class SecurityConfig {
 
         return http
                 .authorizeRequests() // everything in this page is authorized
-                .antMatchers("/companies/**").hasAuthority("Root User")
-                .antMatchers("/users/**").hasAnyAuthority("Root User", "Admin")
-                .antMatchers("/clientVendors/**").hasAuthority("Admin")
-                .antMatchers("/categories/**").hasAuthority("Admin")
-                .antMatchers("/products/**").hasAuthority("Admin")
-                .antMatchers("/purchaseInvoices/**").hasAuthority("Admin")
-                .antMatchers("/salesInvoices/**").hasAuthority("Admin")
-                .antMatchers("/reports/**").hasAuthority("Admin")
-                .antMatchers("/dashboard").hasAuthority("Manager")
-                .antMatchers("/dashboard").hasAuthority("Employee")
+                .antMatchers("/company/**").hasAuthority("Root User")
+                .antMatchers("/user/**").hasAnyAuthority("Root User", "Admin")
+                .antMatchers("/clientVendor/**").hasAnyAuthority("Admin", "Manager", "Employee")
+                .antMatchers("/category/**").hasAnyAuthority("Admin","Manager", "Employee")
+                .antMatchers("/product/**").hasAnyAuthority("Admin","Manager", "Employee")
+                .antMatchers("/report/**").hasAnyAuthority("Admin", "Manager")
+                .antMatchers("/dashboard").hasAnyAuthority("Manager", "Employee")
+                .antMatchers("/invoice/**").hasAnyAuthority("Manager", "Employee", "Admin" )
                 .antMatchers(               // except these
                         "/",
                         "/login",
