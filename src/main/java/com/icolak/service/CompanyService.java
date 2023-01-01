@@ -19,4 +19,6 @@ public interface CompanyService {
     CompanyDTO update(CompanyDTO companyDTO);
 
     boolean isTitleExist(String title);
+
+    boolean isTitleExistExceptCurrentCompanyTitle(CompanyDTO companyDTO);
 }

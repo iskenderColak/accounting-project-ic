@@ -98,9 +98,18 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public boolean isTitleExist(String title) {
 
-        companyRepository.findAll().stream()
-                .map(company -> company.getTitle().equals(title));
+        return companyRepository.existsByTitle(title);
+    }
 
-        return false;
+    @Override
+    public boolean isTitleExistExceptCurrentCompanyTitle(CompanyDTO companyDTO) {
+
+        Company company = mapperUtil.convert(findById(companyDTO.getId()), new Company());
+
+        if (company.getTitle().equals(companyDTO.getTitle())) {
+            return false;
+        }
+
+        return companyRepository.existsByTitle(companyDTO.getTitle());
     }
 }
