@@ -25,7 +25,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO findById(Long id) {
-        return mapperUtil.convert(userRepository.findById(id), new UserDTO());
+        return mapperUtil.convert(userRepository.findById(id).orElseThrow(), new UserDTO());
     }
 
     @Override
@@ -82,5 +82,23 @@ public class UserServiceImpl implements UserService {
     public boolean isUsernameExist(String username) {
 
         return userRepository.existsByUsername(username);
+    }
+
+    @Override
+    public boolean isUsernameExistExceptCurrentUsername(String username) {
+
+        User user = mapperUtil.convert(findByUsername(username), new User());
+        if (user.getUsername().equals(username)) {
+            return false;
+        }
+        return userRepository.existsByUsername(username);
+    }
+
+    @Override
+    public UserDTO update(UserDTO userDTO) {
+
+        userRepository.save(mapperUtil.convert(userDTO, new User()));
+
+        return findById(userDTO.getId());
     }
 }

@@ -20,4 +20,8 @@ public interface UserService {
     void makeUserEnableByCompany(Company company);
 
     boolean isUsernameExist(String username);
+
+    boolean isUsernameExistExceptCurrentUsername(String username);
+
+    UserDTO update(UserDTO userDTO);
 }

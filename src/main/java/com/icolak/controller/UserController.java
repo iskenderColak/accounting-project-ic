@@ -7,10 +7,7 @@ import com.icolak.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -52,6 +49,8 @@ public class UserController {
 
         if (userService.isUsernameExist(user.getUsername())) {
             bindingResult.rejectValue("username", " ", "This username already exists");
+            model.addAttribute("userRoles", roleService.getRoles());
+            model.addAttribute("companies", companyService.listAllCompanies());
             return "/user/user-create";
         }
 
@@ -62,6 +61,39 @@ public class UserController {
         }
 
         userService.save(user);
+
+        return "redirect:/users/list";
+    }
+
+    @GetMapping("/update/{id}")
+    public String editUser(@PathVariable("id") Long id, Model model) {
+
+        model.addAttribute("user", userService.findById(id));
+        model.addAttribute("userRoles", roleService.getRoles());
+        model.addAttribute("companies", companyService.listAllCompanies());
+
+        return "user/user-update";
+    }
+
+    @PostMapping("/update/{id}")
+    public String updateUser(@Valid @ModelAttribute("user") UserDTO userDTO,
+                                BindingResult bindingResult, Model model) {
+
+//        if (userService.isUsernameExistExceptCurrentUsername(userDTO)) {
+        if (userService.isUsernameExistExceptCurrentUsername(userDTO.getUsername())) {
+            bindingResult.rejectValue("title", " ", "This username already exists");
+            model.addAttribute("userRoles", roleService.getRoles());
+            model.addAttribute("companies", companyService.listAllCompanies());
+            return "user/user-update";
+        }
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("userRoles", roleService.getRoles());
+            model.addAttribute("companies", companyService.listAllCompanies());
+            return "user/user-update";
+        }
+
+        userService.update(userDTO);
 
         return "redirect:/users/list";
     }
