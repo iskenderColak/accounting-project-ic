@@ -24,4 +24,6 @@ public interface UserService {
     boolean isUsernameExistExceptCurrentUsername(String username);
 
     UserDTO update(UserDTO userDTO);
+
+    void delete(Long id);
 }

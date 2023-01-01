@@ -101,4 +101,13 @@ public class UserServiceImpl implements UserService {
 
         return findById(userDTO.getId());
     }
+
+    @Override
+    public void delete(Long id) {
+
+        User user = userRepository.findById(id).orElseThrow();
+        user.setIsDeleted(true);
+        user.setUsername(user.getUsername() + " " + user.getId());
+        userRepository.save(user);
+    }
 }

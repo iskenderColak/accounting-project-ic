@@ -1,6 +1,7 @@
 package com.icolak.controller;
 
 import com.icolak.dto.UserDTO;
+import com.icolak.entity.User;
 import com.icolak.service.CompanyService;
 import com.icolak.service.RoleService;
 import com.icolak.service.UserService;
@@ -94,6 +95,14 @@ public class UserController {
         }
 
         userService.update(userDTO);
+
+        return "redirect:/users/list";
+    }
+
+    @GetMapping("/delete/{id}")
+    public String deleteUser(@PathVariable("id") Long id) {
+
+        userService.delete(id);
 
         return "redirect:/users/list";
     }
