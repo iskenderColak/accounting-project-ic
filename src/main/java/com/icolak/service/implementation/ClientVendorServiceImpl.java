@@ -63,6 +63,9 @@ public class ClientVendorServiceImpl implements ClientVendorService {
 
     @Override
     public ClientVendorDTO update(ClientVendorDTO clientVendorDTO) {
-      return null;
+
+        save(clientVendorDTO);
+
+      return findById(clientVendorDTO.getId());
     }
 }
