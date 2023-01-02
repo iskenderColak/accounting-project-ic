@@ -68,4 +68,18 @@ public class ClientVendorServiceImpl implements ClientVendorService {
 
       return findById(clientVendorDTO.getId());
     }
+
+    @Override
+    public boolean isClientVendorNameExist(String clientVendorName) {
+        return clientVendorRepository.existsByClientVendorName(clientVendorName);
+    }
+
+    @Override
+    public boolean isClientVendorNameExistExceptCurrent(ClientVendorDTO clientVendorDTO) {
+        ClientVendor clientVendor = mapperUtil.convert(findById(clientVendorDTO.getId()), new ClientVendor());
+        if (clientVendor.getClientVendorName().equals(clientVendorDTO.getClientVendorName().trim())) {
+            return false;
+        }
+        return isClientVendorNameExist(clientVendorDTO.getClientVendorName());
+    }
 }

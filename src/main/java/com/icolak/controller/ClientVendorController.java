@@ -43,6 +43,10 @@ public class ClientVendorController {
     public String insertClientVendors(@Valid @ModelAttribute("newClientVendor") ClientVendorDTO clientVendorDTO,
                                       BindingResult bindingResult, Model model) {
 
+        if (clientVendorService.isClientVendorNameExist(clientVendorDTO.getClientVendorName())) {
+            bindingResult.rejectValue("clientVendorName", "", "This name already exists");
+        }
+
         if (bindingResult.hasErrors()) {
             model.addAttribute("clientVendorTypes", ClientVendorType.values());
             model.addAttribute("countries", StaticConstants.COUNTRY_LIST);
@@ -67,6 +71,10 @@ public class ClientVendorController {
     @PostMapping("/update/{id}")
     public String updateClientVendors(@Valid @ModelAttribute("clientVendor") ClientVendorDTO clientVendorDTO,
                                       BindingResult bindingResult, Model model) {
+
+        if (clientVendorService.isClientVendorNameExistExceptCurrent(clientVendorDTO)) {
+            bindingResult.rejectValue("clientVendorName", "", "This name already exists");
+        }
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("clientVendorTypes", ClientVendorType.values());

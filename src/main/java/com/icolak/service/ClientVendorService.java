@@ -10,4 +10,8 @@ public interface ClientVendorService {
     List<ClientVendorDTO> listClientVendors();
     void save(ClientVendorDTO clientVendorDTO);
     ClientVendorDTO update(ClientVendorDTO clientVendorDTO);
+
+    boolean isClientVendorNameExist(String clientVendorName);
+
+    boolean isClientVendorNameExistExceptCurrent(ClientVendorDTO clientVendorDTO);
 }
