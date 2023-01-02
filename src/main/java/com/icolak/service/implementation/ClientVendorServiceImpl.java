@@ -2,6 +2,8 @@ package com.icolak.service.implementation;
 
 import com.icolak.dto.ClientVendorDTO;
 import com.icolak.dto.UserDTO;
+import com.icolak.entity.ClientVendor;
+import com.icolak.entity.Company;
 import com.icolak.entity.User;
 import com.icolak.mapper.MapperUtil;
 import com.icolak.repository.ClientVendorRepository;
@@ -47,5 +49,20 @@ public class ClientVendorServiceImpl implements ClientVendorService {
                 .filter(clientVendor -> clientVendor.getCompany().getTitle().equals(companyTitle))
                 .map(clientVendor -> mapperUtil.convert(clientVendor, new ClientVendorDTO()))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void save(ClientVendorDTO clientVendorDTO) {
+
+        ClientVendor clientVendor = mapperUtil.convert(clientVendorDTO, new ClientVendor());
+        clientVendor.setCompany
+                (mapperUtil.convert(securityService.getLoggedInUser().getCompany(), new Company()));
+
+        clientVendorRepository.save(clientVendor);
+    }
+
+    @Override
+    public ClientVendorDTO update(ClientVendorDTO clientVendorDTO) {
+      return null;
     }
 }

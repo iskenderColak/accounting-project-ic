@@ -25,7 +25,7 @@ public class ClientVendorDTO {
     @NotBlank(message = "Phone Number is required field and may be in any valid phone number format.")
     private String phone;
 
-    @NotBlank
+    @NotBlank(message = "Website should not be empty.")
     @Pattern(regexp = "^http(s{0,1})://[a-zA-Z0-9/\\-\\.]+.([A-Za-z/]{2,5})[a-zA-Z0-9/\\&\\?\\=\\-\\.\\~\\%]*", message = "Website should have a valid format.")
     private String website;
 
@@ -35,7 +35,5 @@ public class ClientVendorDTO {
     @Valid
     private AddressDTO address;
 
-    @NotNull(message = "Please select a Customer")
-    @Valid
     private CompanyDTO company;
 }
