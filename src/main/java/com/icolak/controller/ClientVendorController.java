@@ -78,6 +78,7 @@ public class ClientVendorController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("clientVendorTypes", ClientVendorType.values());
+
             model.addAttribute("countries", StaticConstants.COUNTRY_LIST);
 
             return "/clientVendor/clientVendor-update";
@@ -85,6 +86,18 @@ public class ClientVendorController {
 
         clientVendorService.update(clientVendorDTO);
 
+        return "redirect:/clientVendors/list";
+    }
+
+    @GetMapping("/delete/{id}")
+    public String deleteClientVendor(@PathVariable("id") Long id, Model model) {
+        model.addAttribute("clientVendors", clientVendorService.listClientVendors());
+        try {
+            clientVendorService.delete(id);
+        } catch (IllegalAccessException e) {
+            model.addAttribute("error", e.getMessage());
+            return "clientVendor/clientVendor-list";
+        }
         return "redirect:/clientVendors/list";
     }
 }

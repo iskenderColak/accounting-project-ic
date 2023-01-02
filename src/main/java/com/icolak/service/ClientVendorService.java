@@ -14,4 +14,6 @@ public interface ClientVendorService {
     boolean isClientVendorNameExist(String clientVendorName);
 
     boolean isClientVendorNameExistExceptCurrent(ClientVendorDTO clientVendorDTO);
+
+    void delete(Long id) throws IllegalAccessException;
 }

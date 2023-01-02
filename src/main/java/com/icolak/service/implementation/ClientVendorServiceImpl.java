@@ -1,19 +1,19 @@
 package com.icolak.service.implementation;
 
 import com.icolak.dto.ClientVendorDTO;
-import com.icolak.dto.UserDTO;
+import com.icolak.dto.InvoiceDTO;
 import com.icolak.entity.ClientVendor;
 import com.icolak.entity.Company;
-import com.icolak.entity.User;
 import com.icolak.mapper.MapperUtil;
 import com.icolak.repository.ClientVendorRepository;
 import com.icolak.service.ClientVendorService;
+import com.icolak.service.InvoiceService;
 import com.icolak.service.SecurityService;
 import com.icolak.service.UserService;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,12 +23,14 @@ public class ClientVendorServiceImpl implements ClientVendorService {
     private final MapperUtil mapperUtil;
     private final UserService userService;
     private final SecurityService securityService;
+    private final InvoiceService invoiceService;
 
-    public ClientVendorServiceImpl(ClientVendorRepository clientVendorRepository, MapperUtil mapperUtil, UserService userService, SecurityService securityService) {
+    public ClientVendorServiceImpl(ClientVendorRepository clientVendorRepository, MapperUtil mapperUtil, UserService userService, SecurityService securityService, InvoiceService invoiceService) {
         this.clientVendorRepository = clientVendorRepository;
         this.mapperUtil = mapperUtil;
         this.userService = userService;
         this.securityService = securityService;
+        this.invoiceService = invoiceService;
     }
 
     @Override
@@ -66,7 +68,7 @@ public class ClientVendorServiceImpl implements ClientVendorService {
 
         save(clientVendorDTO);
 
-      return findById(clientVendorDTO.getId());
+        return findById(clientVendorDTO.getId());
     }
 
     @Override
@@ -81,5 +83,18 @@ public class ClientVendorServiceImpl implements ClientVendorService {
             return false;
         }
         return isClientVendorNameExist(clientVendorDTO.getClientVendorName());
+    }
+
+    @Override
+    public void delete(Long id) throws IllegalAccessException {
+        Optional<ClientVendor> clientVendor = clientVendorRepository.findById(id);
+        if (clientVendor.isPresent()) {
+            if (!(invoiceService.existsByClientVendorId(id))) {
+                clientVendor.get().setIsDeleted(true);
+                clientVendorRepository.save(clientVendor.get());
+            } else {
+                throw new IllegalAccessException("Cannot be deleted. Has invoice linked to Client/Vendor");
+            }
+        }
     }
 }
