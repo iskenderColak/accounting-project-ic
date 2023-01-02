@@ -7,6 +7,7 @@ import com.icolak.mapper.MapperUtil;
 import com.icolak.repository.UserRepository;
 import com.icolak.service.UserService;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,9 +19,12 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final MapperUtil mapperUtil;
 
-    public UserServiceImpl(UserRepository userRepository, MapperUtil mapperUtil) {
+    private final PasswordEncoder passwordEncoder;
+
+    public UserServiceImpl(UserRepository userRepository, MapperUtil mapperUtil, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.mapperUtil = mapperUtil;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -61,6 +65,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void save(UserDTO userDTO) {
+        userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        userDTO.setEnabled(true);
         userRepository.save(mapperUtil.convert(userDTO, new User()));
     }
 
