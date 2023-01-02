@@ -91,13 +91,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean isUsernameExistExceptCurrentUsername(String username) {
+    public boolean isUsernameExistExceptCurrentUsername(UserDTO userDTO) {
 
-        User user = mapperUtil.convert(findByUsername(username), new User());
-        if (user.getUsername().equals(username)) {
+        User user = mapperUtil.convert(findById(userDTO.getId()), new User());
+        if (user.getUsername().equals(userDTO.getUsername())) {
             return false;
         }
-        return userRepository.existsByUsername(username);
+        return isUsernameExist(user.getUsername());
     }
 
     @Override

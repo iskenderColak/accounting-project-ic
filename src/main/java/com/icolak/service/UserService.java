@@ -21,7 +21,7 @@ public interface UserService {
 
     boolean isUsernameExist(String username);
 
-    boolean isUsernameExistExceptCurrentUsername(String username);
+    boolean isUsernameExistExceptCurrentUsername(UserDTO userDTO);
 
     UserDTO update(UserDTO userDTO);
 

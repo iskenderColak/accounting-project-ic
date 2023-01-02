@@ -80,12 +80,8 @@ public class UserController {
     public String updateUser(@Valid @ModelAttribute("user") UserDTO userDTO,
                                 BindingResult bindingResult, Model model) {
 
-//        if (userService.isUsernameExistExceptCurrentUsername(userDTO)) {
-        if (userService.isUsernameExistExceptCurrentUsername(userDTO.getUsername())) {
-            bindingResult.rejectValue("title", " ", "This username already exists");
-            model.addAttribute("userRoles", roleService.getRoles());
-            model.addAttribute("companies", companyService.listAllCompanies());
-            return "user/user-update";
+        if (userService.isUsernameExistExceptCurrentUsername(userDTO)) {
+            bindingResult.rejectValue("username", " ", "This username already exists");
         }
 
         if (bindingResult.hasErrors()) {
