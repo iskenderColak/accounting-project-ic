@@ -1,6 +1,8 @@
 package com.icolak.service.implementation;
 
 import com.icolak.dto.CategoryDTO;
+import com.icolak.entity.Category;
+import com.icolak.entity.Company;
 import com.icolak.mapper.MapperUtil;
 import com.icolak.repository.CategoryRepository;
 import com.icolak.service.CategoryService;
@@ -36,5 +38,17 @@ public class CategoryServiceImpl implements CategoryService {
                 .filter(category -> category.getCompany().getTitle().equals(securityService.getLoggedInUser().getCompany().getTitle()))
                 .map(category -> mapperUtil.convert(category, new CategoryDTO()))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void save(CategoryDTO categoryDTO) {
+        Category category = mapperUtil.convert(categoryDTO, new Category());
+        category.setCompany(mapperUtil.convert(securityService.getLoggedInUser().getCompany(), new Company()));
+        categoryRepository.save(category);
+    }
+
+    @Override
+    public boolean isDescriptionExist(String description) {
+        return categoryRepository.existsByDescription(description);
     }
 }

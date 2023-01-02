@@ -8,4 +8,8 @@ public interface CategoryService {
     CategoryDTO findById(Long id);
 
     List<CategoryDTO> listAllCategories();
+
+    void save(CategoryDTO categoryDTO);
+
+    boolean isDescriptionExist(String description);
 }
