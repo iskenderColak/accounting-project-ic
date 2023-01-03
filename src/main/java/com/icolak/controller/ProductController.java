@@ -7,10 +7,7 @@ import com.icolak.service.ProductService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -51,6 +48,20 @@ public class ProductController {
             return "/product/product-create";
         }
         productService.save(productDTO);
+        return "redirect:/products/list";
+    }
+
+    @GetMapping("/update/{id}")
+    public String editProduct(@PathVariable("id") Long id, Model model) {
+        model.addAttribute("product", productService.findById(id));
+        model.addAttribute("categories", categoryService.listAllCategories());
+        model.addAttribute("productUnits", ProductUnit.values());
+        return "/product/product-update";
+    }
+
+    @PostMapping("/update/{id}")
+    public String updateProduct(@ModelAttribute("product") ProductDTO productDTO) {
+        productService.update(productDTO);
         return "redirect:/products/list";
     }
 }
