@@ -2,6 +2,7 @@ package com.icolak.controller;
 
 import com.icolak.dto.CategoryDTO;
 import com.icolak.service.CategoryService;
+import com.icolak.service.ProductService;
 import com.icolak.service.SecurityService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,10 +17,12 @@ public class CategoryController {
 
     private final CategoryService categoryService;
     private final SecurityService securityService;
+    private final ProductService productService;
 
-    public CategoryController(CategoryService categoryService, SecurityService securityService) {
+    public CategoryController(CategoryService categoryService, SecurityService securityService, ProductService productService) {
         this.categoryService = categoryService;
         this.securityService = securityService;
+        this.productService = productService;
     }
 
     @GetMapping("/list")
@@ -50,7 +53,9 @@ public class CategoryController {
 
     @GetMapping("/update/{id}")
     public String editCategory(@PathVariable("id") Long id, Model model) {
-        model.addAttribute("category", categoryService.findById(id));
+        CategoryDTO categoryDTO = categoryService.findById(id);
+        categoryDTO.setHasProduct(productService.isExistByCategoryId(id));
+        model.addAttribute("category", categoryDTO);
         return "/category/category-update";
     }
 
