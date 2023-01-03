@@ -1,6 +1,7 @@
 package com.icolak.service.implementation;
 
 import com.icolak.dto.CategoryDTO;
+import com.icolak.dto.CompanyDTO;
 import com.icolak.entity.Category;
 import com.icolak.entity.Company;
 import com.icolak.mapper.MapperUtil;
@@ -35,7 +36,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public List<CategoryDTO> listAllCategories() {
         return categoryRepository.findAll(Sort.by("description")).stream()
-                .filter(category -> category.getCompany().getTitle().equals(securityService.getLoggedInUser().getCompany().getTitle()))
+                .filter(category -> category.getCompany().getId().equals(securityService.getLoggedInUser().getCompany().getId()))
                 .map(category -> mapperUtil.convert(category, new CategoryDTO()))
                 .collect(Collectors.toList());
     }
@@ -48,7 +49,24 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public boolean isDescriptionExist(String description) {
-        return categoryRepository.existsByDescription(description);
+    public boolean isDescriptionExist(String description, CompanyDTO companyDTO) {
+        return categoryRepository.existsByDescriptionAndCompany
+                (description, mapperUtil.convert(companyDTO, new Company()));
+    }
+
+    @Override
+    public CategoryDTO update(CategoryDTO categoryDTO) {
+        save(categoryDTO);
+        return findById(categoryDTO.getId());
+    }
+
+    @Override
+    public boolean isDescriptionExistExceptCurrentDescription(CategoryDTO categoryDTO) {
+        Category category = mapperUtil.convert(findById(categoryDTO.getId()), new Category());
+        if (category.getDescription().equals(categoryDTO.getDescription())) {
+            return false;
+        }
+        return isDescriptionExist(categoryDTO.getDescription(),
+                mapperUtil.convert(category.getCompany(), new CompanyDTO()));
     }
 }
