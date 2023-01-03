@@ -4,6 +4,7 @@ import com.icolak.dto.ProductDTO;
 import com.icolak.entity.Product;
 import com.icolak.mapper.MapperUtil;
 import com.icolak.repository.ProductRepository;
+import com.icolak.service.InvoiceProductService;
 import com.icolak.service.ProductService;
 import com.icolak.service.SecurityService;
 import org.springframework.data.domain.Sort;
@@ -18,11 +19,13 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final MapperUtil mapperUtil;
     private final SecurityService securityService;
+    private  final InvoiceProductService invoiceProductService;
 
-    public ProductServiceImpl(ProductRepository productRepository, MapperUtil mapperUtil, SecurityService securityService) {
+    public ProductServiceImpl(ProductRepository productRepository, MapperUtil mapperUtil, SecurityService securityService, InvoiceProductService invoiceProductService) {
         this.productRepository = productRepository;
         this.mapperUtil = mapperUtil;
         this.securityService = securityService;
+        this.invoiceProductService = invoiceProductService;
     }
 
     @Override
@@ -57,5 +60,14 @@ public class ProductServiceImpl implements ProductService {
         convertedProduct.setQuantityInStock(dbProduct.getQuantityInStock());
         productRepository.save(convertedProduct);
         return findById(productDTO.getId());
+    }
+
+    @Override
+    public void delete(Long id) {
+        Product product = productRepository.findById(id).orElseThrow();
+        if (product.getQuantityInStock() == 0 && !invoiceProductService.isExistByProductId(id)) {
+            product.setIsDeleted(true);
+            productRepository.save(product);
+        }
     }
 }
