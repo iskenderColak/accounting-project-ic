@@ -2,7 +2,6 @@ package com.icolak.controller;
 
 import com.icolak.dto.CategoryDTO;
 import com.icolak.service.CategoryService;
-import com.icolak.service.ProductService;
 import com.icolak.service.SecurityService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,11 +16,10 @@ public class CategoryController {
 
     private final CategoryService categoryService;
     private final SecurityService securityService;
-    private final ProductService productService;
-    public CategoryController(CategoryService categoryService, SecurityService securityService, ProductService productService) {
+
+    public CategoryController(CategoryService categoryService, SecurityService securityService) {
         this.categoryService = categoryService;
         this.securityService = securityService;
-        this.productService = productService;
     }
 
     @GetMapping("/list")
@@ -52,12 +50,6 @@ public class CategoryController {
 
     @GetMapping("/update/{id}")
     public String editCategory(@PathVariable("id") Long id, Model model) {
-        CategoryDTO categoryDTO = categoryService.findById(id);
-        if (productService.isExistByCategoryId(id)) {
-            model.addAttribute("category", categoryService.findById(id));
-            categoryDTO.setHasProduct(true);
-            return "redirect:/categories/list";
-        }
         model.addAttribute("category", categoryService.findById(id));
         return "/category/category-update";
     }
@@ -72,6 +64,12 @@ public class CategoryController {
             return "/category/category-update";
         }
         categoryService.update(categoryDTO);
+        return "redirect:/categories/list";
+    }
+
+    @GetMapping("/delete/{id}")
+    public String deleteCategory(@PathVariable("id") Long id) {
+        categoryService.delete(id);
         return "redirect:/categories/list";
     }
 }

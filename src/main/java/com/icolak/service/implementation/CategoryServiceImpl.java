@@ -7,6 +7,7 @@ import com.icolak.entity.Company;
 import com.icolak.mapper.MapperUtil;
 import com.icolak.repository.CategoryRepository;
 import com.icolak.service.CategoryService;
+import com.icolak.service.ProductService;
 import com.icolak.service.SecurityService;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -19,13 +20,14 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final MapperUtil mapperUtil;
-
     private final SecurityService securityService;
+    private final ProductService productService;
 
-    public CategoryServiceImpl(CategoryRepository categoryRepository, MapperUtil mapperUtil, SecurityService securityService) {
+    public CategoryServiceImpl(CategoryRepository categoryRepository, MapperUtil mapperUtil, SecurityService securityService, ProductService productService) {
         this.categoryRepository = categoryRepository;
         this.mapperUtil = mapperUtil;
         this.securityService = securityService;
+        this.productService = productService;
     }
 
     @Override
@@ -37,7 +39,11 @@ public class CategoryServiceImpl implements CategoryService {
     public List<CategoryDTO> listAllCategories() {
         return categoryRepository.findAll(Sort.by("description")).stream()
                 .filter(category -> category.getCompany().getId().equals(securityService.getLoggedInUser().getCompany().getId()))
-                .map(category -> mapperUtil.convert(category, new CategoryDTO()))
+                .map(category -> {
+                    CategoryDTO dto = mapperUtil.convert(category, new CategoryDTO());
+                    dto.setHasProduct(productService.isExistByCategoryId(dto.getId()));
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -68,5 +74,12 @@ public class CategoryServiceImpl implements CategoryService {
         }
         return isDescriptionExist(categoryDTO.getDescription(),
                 mapperUtil.convert(category.getCompany(), new CompanyDTO()));
+    }
+
+    @Override
+    public void delete(Long id) {
+        Category category = categoryRepository.findById(id).orElseThrow();
+        category.setIsDeleted(true);
+        categoryRepository.save(category);
     }
 }

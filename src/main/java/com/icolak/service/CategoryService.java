@@ -17,4 +17,6 @@ public interface CategoryService {
     CategoryDTO update(CategoryDTO categoryDTO);
 
     boolean isDescriptionExistExceptCurrentDescription(CategoryDTO categoryDTO);
+
+    void delete(Long id);
 }
