@@ -4,6 +4,8 @@ import com.icolak.dto.ProductDTO;
 import com.icolak.mapper.MapperUtil;
 import com.icolak.repository.ProductRepository;
 import com.icolak.service.ProductService;
+import com.icolak.service.SecurityService;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,10 +16,12 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final MapperUtil mapperUtil;
+    private final SecurityService securityService;
 
-    public ProductServiceImpl(ProductRepository productRepository, MapperUtil mapperUtil) {
+    public ProductServiceImpl(ProductRepository productRepository, MapperUtil mapperUtil, SecurityService securityService) {
         this.productRepository = productRepository;
         this.mapperUtil = mapperUtil;
+        this.securityService = securityService;
     }
 
     @Override
@@ -27,7 +31,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductDTO> listAllProducts() {
-        return productRepository.findAll().stream()
+        return productRepository.findAll(Sort.by("category", "name")).stream()
+                .filter(product -> product.getCategory().getCompany().getId().equals(securityService.getLoggedInUser().getCompany().getId()))
                 .map(product -> mapperUtil.convert(product, new ProductDTO()))
                 .collect(Collectors.toList());
     }
