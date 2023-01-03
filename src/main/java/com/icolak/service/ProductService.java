@@ -11,4 +11,6 @@ public interface ProductService {
     List<ProductDTO> listAllProducts();
 
     boolean isExistByCategoryId(Long id);
+
+    void save(ProductDTO productDTO);
 }

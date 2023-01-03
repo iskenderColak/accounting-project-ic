@@ -1,6 +1,7 @@
 package com.icolak.service.implementation;
 
 import com.icolak.dto.ProductDTO;
+import com.icolak.entity.Product;
 import com.icolak.mapper.MapperUtil;
 import com.icolak.repository.ProductRepository;
 import com.icolak.service.ProductService;
@@ -40,5 +41,12 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public boolean isExistByCategoryId(Long id) {
         return productRepository.existsByCategoryId(id);
+    }
+
+    @Override
+    public void save(ProductDTO productDTO) {
+        Product product = mapperUtil.convert(productDTO, new Product());
+        product.setQuantityInStock(5);
+        productRepository.save(product);
     }
 }
