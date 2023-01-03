@@ -32,7 +32,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDTO findById(Long id) {
-        return mapperUtil.convert(categoryRepository.findById(id).orElseThrow(), new CategoryDTO());
+        CategoryDTO categoryDTO = mapperUtil.convert(categoryRepository.findById(id).orElseThrow(), new CategoryDTO());
+        categoryDTO.setHasProduct(productService.isExistByCategoryId(id));
+        return categoryDTO;
     }
 
     @Override
