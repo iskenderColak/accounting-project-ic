@@ -2,6 +2,7 @@ package com.icolak.service.implementation;
 
 import com.icolak.dto.InvoiceDTO;
 import com.icolak.dto.InvoiceProductDTO;
+import com.icolak.entity.Invoice;
 import com.icolak.enums.InvoiceType;
 import com.icolak.mapper.MapperUtil;
 import com.icolak.repository.InvoiceRepository;
@@ -31,7 +32,11 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public InvoiceDTO findById(Long id) {
-        return mapperUtil.convert(invoiceRepository.findById(id).orElseThrow(), new InvoiceDTO());
+        InvoiceDTO invoiceDTO = mapperUtil.convert(invoiceRepository.findById(id).orElseThrow(), new InvoiceDTO());
+        invoiceDTO.setTotal(invoiceProductService.getTotalPriceWithTaxByInvoiceId(id));
+        invoiceDTO.setPrice(invoiceProductService.getTotalPriceWithoutTaxByInvoiceId(id));
+        invoiceDTO.setTax(invoiceDTO.getTotal().subtract(invoiceDTO.getPrice()));
+        return invoiceDTO;
     }
 
     @Override
@@ -68,5 +73,24 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     public boolean existsByClientVendorId(Long id) {
         return invoiceRepository.existsByClientVendorId(id);
+    }
+
+    @Override
+    public String generateInvoiceNo(InvoiceType invoiceType) {
+        Invoice invoice = invoiceRepository.findTopByCompanyIdAndInvoiceTypeOrderByIdDesc(
+                securityService.getLoggedInUser().getCompany().getId(), invoiceType);
+        int number = Integer.parseInt(invoice.getInvoiceNo().substring(2)) + 1;
+        String prefix;
+        if(invoice.getInvoiceType().equals(InvoiceType.PURCHASE)) {
+            prefix = "P-";
+        } else {
+            prefix = "S-";
+        }
+        if (number < 10) {
+            return prefix + "00" + number;
+        } else if (number < 100) {
+            return prefix + "0" + number;
+        }
+        return prefix + number;
     }
 }

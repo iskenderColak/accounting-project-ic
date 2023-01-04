@@ -30,7 +30,15 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
     @Override
     public List<InvoiceProductDTO> listByInvoiceId(Long id) {
         return invoiceProductRepository.findAllByInvoiceId(id).stream()
-                .map(invoiceProduct -> mapperUtil.convert(invoiceProduct, new InvoiceProductDTO()))
+                .map(invoiceProduct -> {
+                    InvoiceProductDTO dto = mapperUtil.convert(invoiceProduct, new InvoiceProductDTO());
+                    dto.setTotal(invoiceProduct.getPrice()
+                            .add(invoiceProduct.getPrice()
+                                    .multiply(BigDecimal.valueOf(invoiceProduct.getTax()))
+                                    .divide(BigDecimal.valueOf(100), RoundingMode.HALF_EVEN))
+                            .multiply(BigDecimal.valueOf(invoiceProduct.getQuantity())));
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 

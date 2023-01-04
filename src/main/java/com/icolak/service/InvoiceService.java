@@ -16,5 +16,7 @@ public interface InvoiceService {
     List<InvoiceDTO> listAllInvoices();
 
     boolean existsByClientVendorId(Long id);
+
+    String generateInvoiceNo(InvoiceType invoiceType);
 }
 

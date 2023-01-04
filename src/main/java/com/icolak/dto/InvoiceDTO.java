@@ -30,7 +30,6 @@ public class InvoiceDTO {
     @NotNull(message = "Required field")
     @Valid
     private ClientVendorDTO clientVendor;
-
     private CompanyDTO company;
     private BigDecimal price;
     private BigDecimal tax;
