@@ -8,6 +8,7 @@ import com.icolak.repository.InvoiceRepository;
 import com.icolak.service.InvoiceProductService;
 import com.icolak.service.InvoiceService;
 import com.icolak.service.SecurityService;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,7 +36,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public List<InvoiceDTO> listAllPurchaseInvoices() {
-        return invoiceRepository.findAll().stream()
+        return invoiceRepository.findAll(Sort.by("invoiceNo")).stream()
                 .filter(invoice -> (invoice.getInvoiceType().getValue().equals("Purchase")) &&
                         (invoice.getCompany().getId().equals(securityService.getLoggedInUser().getCompany().getId())))
                 .map(invoice -> {
