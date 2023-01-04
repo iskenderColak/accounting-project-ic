@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -20,12 +22,18 @@ public class InvoiceDTO {
     private String invoiceNo;
     private InvoiceStatus invoiceStatus;
     private InvoiceType invoiceType;
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+
+    @NotNull
+    @DateTimeFormat(pattern = "MM-dd-yyyy")
     private LocalDate date;
-    private CompanyDTO company;
+
+    @NotNull(message = "Required field")
+    @Valid
     private ClientVendorDTO clientVendor;
+
+    private CompanyDTO company;
     private BigDecimal price;
-    private Integer tax;
+    private BigDecimal tax;
     private BigDecimal total;
     private List<InvoiceProductDTO> invoiceProducts;
 
