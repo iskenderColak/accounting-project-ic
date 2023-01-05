@@ -8,16 +8,10 @@ import java.util.List;
 public interface InvoiceService {
 
     InvoiceDTO findById(Long id);
-    List<InvoiceDTO> listAllPurchaseInvoices();
-
-    List<InvoiceDTO> listAllInvoicesByType(InvoiceType invoiceType);
-
+    List<InvoiceDTO> listAllInvoicesByTypeAndCompany(InvoiceType sales);
     List<InvoiceDTO> listAllInvoices();
-
     boolean existsByClientVendorId(Long id);
-
     String generateInvoiceNo(InvoiceType invoiceType);
-
     void save(InvoiceDTO invoiceDTO);
 }
 

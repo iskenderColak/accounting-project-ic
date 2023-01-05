@@ -10,4 +10,5 @@ import java.util.List;
 public interface InvoiceProductRepository extends JpaRepository<InvoiceProduct, Long> {
     boolean existsByProductId(Long id);
     List<InvoiceProduct> findAllByInvoiceId(Long id);
+    List<InvoiceProduct> findByInvoice_InvoiceNoAndInvoice_Company_Id(String invoiceNo, Long companyId);
 }

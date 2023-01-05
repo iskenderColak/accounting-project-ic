@@ -9,8 +9,7 @@ import java.util.List;
 
 @Repository
 public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
-    List<Invoice> findAllByInvoiceType(InvoiceType invoiceType);
-
+    List<Invoice> findAllByInvoiceTypeAndCompanyIdOrderByInvoiceNoDesc(InvoiceType invoiceType, Long id);
     boolean existsByClientVendorId(Long id);
     Invoice findTopByCompanyIdAndInvoiceTypeOrderByIdDesc(Long id, InvoiceType invoiceType);
 }

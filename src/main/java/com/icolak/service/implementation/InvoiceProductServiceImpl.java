@@ -7,6 +7,7 @@ import com.icolak.mapper.MapperUtil;
 import com.icolak.repository.InvoiceProductRepository;
 import com.icolak.service.InvoiceProductService;
 import com.icolak.service.InvoiceService;
+import com.icolak.service.SecurityService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -22,10 +23,13 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
     private final MapperUtil mapperUtil;
     private final InvoiceService invoiceService;
 
-    public InvoiceProductServiceImpl(InvoiceProductRepository invoiceProductRepository, MapperUtil mapperUtil, @Lazy InvoiceService invoiceService) {
+    private final SecurityService securityService;
+
+    public InvoiceProductServiceImpl(InvoiceProductRepository invoiceProductRepository, MapperUtil mapperUtil, @Lazy InvoiceService invoiceService, SecurityService securityService) {
         this.invoiceProductRepository = invoiceProductRepository;
         this.mapperUtil = mapperUtil;
         this.invoiceService = invoiceService;
+        this.securityService = securityService;
     }
 
     @Override
@@ -41,33 +45,41 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
     }
 
     @Override
-    public BigDecimal getTotalPriceWithTaxByInvoiceId(Long id) {
-        return listByInvoiceId(id).stream()
-                .map(invoiceProduct -> invoiceProduct.getPrice()
-                    .add(invoiceProduct.getPrice()
-                            .multiply(BigDecimal.valueOf(invoiceProduct.getTax()))
-                            .divide(BigDecimal.valueOf(100), RoundingMode.HALF_EVEN))
-                    .multiply(BigDecimal.valueOf(invoiceProduct.getQuantity())))
-                .reduce(BigDecimal::add)
-                .orElseThrow();
-    }
-
-    @Override
-    public BigDecimal getTotalPriceWithoutTaxByInvoiceId(Long id) {
-        return listByInvoiceId(id).stream()
-                .map(invoiceProduct -> invoiceProduct.getPrice()
-                        .multiply(BigDecimal.valueOf(invoiceProduct.getQuantity())))
-                .reduce(BigDecimal::add)
-                .orElseThrow();
-    }
-
-    @Override
     public void save(InvoiceProductDTO invoiceProductDTO, Long id) {
         invoiceProductDTO.setProfitLoss(BigDecimal.ZERO);//required calc
         InvoiceDTO invoiceDTO = invoiceService.findById(id);
         invoiceProductDTO.setInvoice(invoiceDTO);
-        //invoiceDTO.getInvoiceProducts().add(invoiceProductDTO);
         invoiceProductDTO.setRemainingQuantity(invoiceProductDTO.getQuantity());
         invoiceProductRepository.save(mapperUtil.convert(invoiceProductDTO, new InvoiceProduct()));
+    }
+
+    @Override
+    public BigDecimal getTotalPriceWithTaxByInvoice(String invoiceNo) {
+        return calculatePriceWithTax(invoiceProductRepository.findByInvoice_InvoiceNoAndInvoice_Company_Id(invoiceNo, currentCompanyId()));
+    }
+
+    @Override
+    public BigDecimal getTotalPriceWithoutTaxByInvoice(String invoiceNo) {
+        return invoiceProductRepository.findByInvoice_InvoiceNoAndInvoice_Company_Id(invoiceNo, currentCompanyId())
+                .stream()
+                .map(invoiceProduct -> invoiceProduct.getPrice()
+                        .multiply(BigDecimal.valueOf(invoiceProduct.getQuantity())))
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
+    }
+
+    private Long currentCompanyId() {
+        return securityService.getLoggedInUser().getCompany().getId();
+    }
+
+    private BigDecimal calculatePriceWithTax(List<InvoiceProduct> list) {
+        return list.stream()
+                .map(invoiceProduct -> invoiceProduct.getPrice()
+                        .add(invoiceProduct.getPrice()
+                                .multiply(BigDecimal.valueOf(invoiceProduct.getTax()))
+                                .divide(BigDecimal.valueOf(100), RoundingMode.HALF_EVEN))
+                        .multiply(BigDecimal.valueOf(invoiceProduct.getQuantity())))
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
     }
 }

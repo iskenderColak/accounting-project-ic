@@ -1,15 +1,14 @@
 package com.icolak.service.implementation;
 
 import com.icolak.dto.ClientVendorDTO;
-import com.icolak.dto.InvoiceDTO;
 import com.icolak.entity.ClientVendor;
 import com.icolak.entity.Company;
+import com.icolak.enums.ClientVendorType;
 import com.icolak.mapper.MapperUtil;
 import com.icolak.repository.ClientVendorRepository;
 import com.icolak.service.ClientVendorService;
 import com.icolak.service.InvoiceService;
 import com.icolak.service.SecurityService;
-import com.icolak.service.UserService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,14 +20,12 @@ public class ClientVendorServiceImpl implements ClientVendorService {
 
     private final ClientVendorRepository clientVendorRepository;
     private final MapperUtil mapperUtil;
-    private final UserService userService;
     private final SecurityService securityService;
     private final InvoiceService invoiceService;
 
-    public ClientVendorServiceImpl(ClientVendorRepository clientVendorRepository, MapperUtil mapperUtil, UserService userService, SecurityService securityService, InvoiceService invoiceService) {
+    public ClientVendorServiceImpl(ClientVendorRepository clientVendorRepository, MapperUtil mapperUtil, SecurityService securityService, InvoiceService invoiceService) {
         this.clientVendorRepository = clientVendorRepository;
         this.mapperUtil = mapperUtil;
-        this.userService = userService;
         this.securityService = securityService;
         this.invoiceService = invoiceService;
     }
@@ -40,17 +37,13 @@ public class ClientVendorServiceImpl implements ClientVendorService {
 
     @Override
     public List<ClientVendorDTO> listClientVendors() {
-//        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-//        UserDTO currentUserDTO = userService.findByUsername(username);
-//        User dbUser = mapperUtil.convert(currentUserDTO, new User());
 
         String companyTitle = securityService.getLoggedInUser().getCompany().getTitle();
 
         return clientVendorRepository.findAll().stream()
-//                .filter(clientVendor -> clientVendor.getCompany().getTitle().equals(dbUser.getCompany().getTitle()))
-                .filter(clientVendor -> clientVendor.getCompany().getTitle().equals(companyTitle))
-                .map(clientVendor -> mapperUtil.convert(clientVendor, new ClientVendorDTO()))
-                .collect(Collectors.toList());
+            .filter(clientVendor -> clientVendor.getCompany().getTitle().equals(companyTitle))
+            .map(clientVendor -> mapperUtil.convert(clientVendor, new ClientVendorDTO()))
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -99,14 +92,13 @@ public class ClientVendorServiceImpl implements ClientVendorService {
     }
 
     @Override
-    public List<ClientVendorDTO> listVendors() {
-
-        Long companyId = securityService.getLoggedInUser().getCompany().getId();
-
-        return clientVendorRepository.findAll().stream()
-                .filter(clientVendor -> (clientVendor.getCompany().getId().equals(companyId)) &&
-                        (clientVendor.getClientVendorType().getValue().equals("Vendor")))
-                .map(clientVendor -> mapperUtil.convert(clientVendor, new ClientVendorDTO()))
+    public List<ClientVendorDTO> listClientVendorsByType(ClientVendorType type) {
+        return clientVendorRepository.findAllByClientVendorTypeAndCompanyIdOrderByClientVendorName(type, currentCompanyId())
+                .stream().map(clientVendor -> mapperUtil.convert(clientVendor, new ClientVendorDTO()))
                 .collect(Collectors.toList());
+    }
+
+    private Long currentCompanyId() {
+        return securityService.getLoggedInUser().getCompany().getId();
     }
 }
