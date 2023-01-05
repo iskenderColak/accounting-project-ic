@@ -3,6 +3,8 @@ package com.icolak.service.implementation;
 import com.icolak.dto.InvoiceDTO;
 import com.icolak.dto.InvoiceProductDTO;
 import com.icolak.entity.Invoice;
+import com.icolak.enums.ClientVendorType;
+import com.icolak.enums.InvoiceStatus;
 import com.icolak.enums.InvoiceType;
 import com.icolak.mapper.MapperUtil;
 import com.icolak.repository.InvoiceRepository;
@@ -32,11 +34,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public InvoiceDTO findById(Long id) {
-        InvoiceDTO invoiceDTO = mapperUtil.convert(invoiceRepository.findById(id).orElseThrow(), new InvoiceDTO());
-        invoiceDTO.setTotal(invoiceProductService.getTotalPriceWithTaxByInvoiceId(id));
-        invoiceDTO.setPrice(invoiceProductService.getTotalPriceWithoutTaxByInvoiceId(id));
-        invoiceDTO.setTax(invoiceDTO.getTotal().subtract(invoiceDTO.getPrice()));
-        return invoiceDTO;
+        return mapperUtil.convert(invoiceRepository.findById(id).orElseThrow(), new InvoiceDTO());
     }
 
     @Override
@@ -92,5 +90,20 @@ public class InvoiceServiceImpl implements InvoiceService {
             return prefix + "0" + number;
         }
         return prefix + number;
+    }
+
+    @Override
+    public void save(InvoiceDTO invoiceDto) {
+        if (invoiceDto.getClientVendor().getClientVendorType().equals(ClientVendorType.CLIENT)) {
+            invoiceDto.setInvoiceType(InvoiceType.SALES);
+        } else {
+            invoiceDto.setInvoiceType(InvoiceType.PURCHASE);
+        }
+
+        invoiceDto.setInvoiceStatus(InvoiceStatus.AWAITING_APPROVAL);
+        invoiceDto.setCompany(securityService.getLoggedInUser().getCompany());
+        Invoice invoice = mapperUtil.convert(invoiceDto, new Invoice());
+        invoiceRepository.save(invoice);
+        invoiceDto.setId(invoice.getId());
     }
 }

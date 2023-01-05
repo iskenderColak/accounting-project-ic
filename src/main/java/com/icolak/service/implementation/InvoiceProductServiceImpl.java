@@ -1,9 +1,13 @@
 package com.icolak.service.implementation;
 
+import com.icolak.dto.InvoiceDTO;
 import com.icolak.dto.InvoiceProductDTO;
+import com.icolak.entity.InvoiceProduct;
 import com.icolak.mapper.MapperUtil;
 import com.icolak.repository.InvoiceProductRepository;
 import com.icolak.service.InvoiceProductService;
+import com.icolak.service.InvoiceService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -16,10 +20,12 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
 
     private final InvoiceProductRepository invoiceProductRepository;
     private final MapperUtil mapperUtil;
+    private final InvoiceService invoiceService;
 
-    public InvoiceProductServiceImpl(InvoiceProductRepository invoiceProductRepository, MapperUtil mapperUtil) {
+    public InvoiceProductServiceImpl(InvoiceProductRepository invoiceProductRepository, MapperUtil mapperUtil, @Lazy InvoiceService invoiceService) {
         this.invoiceProductRepository = invoiceProductRepository;
         this.mapperUtil = mapperUtil;
+        this.invoiceService = invoiceService;
     }
 
     @Override
@@ -61,5 +67,15 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
                         .multiply(BigDecimal.valueOf(invoiceProduct.getQuantity())))
                 .reduce(BigDecimal::add)
                 .orElseThrow();
+    }
+
+    @Override
+    public void save(InvoiceProductDTO invoiceProductDTO, Long id) {
+        invoiceProductDTO.setProfitLoss(BigDecimal.ZERO);//required calc
+        InvoiceDTO invoiceDTO = invoiceService.findById(id);
+        invoiceProductDTO.setInvoice(invoiceDTO);
+        //invoiceDTO.getInvoiceProducts().add(invoiceProductDTO);
+        invoiceProductDTO.setRemainingQuantity(invoiceProductDTO.getQuantity());
+        invoiceProductRepository.save(mapperUtil.convert(invoiceProductDTO, new InvoiceProduct()));
     }
 }

@@ -12,4 +12,6 @@ public interface InvoiceProductService {
     BigDecimal getTotalPriceWithTaxByInvoiceId(Long id);
 
     BigDecimal getTotalPriceWithoutTaxByInvoiceId(Long id);
+
+    void save(InvoiceProductDTO invoiceProductDTO, Long id);
 }

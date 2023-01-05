@@ -97,4 +97,16 @@ public class ClientVendorServiceImpl implements ClientVendorService {
             }
         }
     }
+
+    @Override
+    public List<ClientVendorDTO> listVendors() {
+
+        Long companyId = securityService.getLoggedInUser().getCompany().getId();
+
+        return clientVendorRepository.findAll().stream()
+                .filter(clientVendor -> (clientVendor.getCompany().getId().equals(companyId)) &&
+                        (clientVendor.getClientVendorType().getValue().equals("Vendor")))
+                .map(clientVendor -> mapperUtil.convert(clientVendor, new ClientVendorDTO()))
+                .collect(Collectors.toList());
+    }
 }
