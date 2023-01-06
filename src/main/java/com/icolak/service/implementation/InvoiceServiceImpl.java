@@ -67,7 +67,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                 securityService.getLoggedInUser().getCompany().getId(), invoiceType);
         int number = Integer.parseInt(invoice.getInvoiceNo().substring(2)) + 1;
         String prefix;
-        if(invoice.getInvoiceType().equals(InvoiceType.PURCHASE)) {
+        if (invoice.getInvoiceType().equals(InvoiceType.PURCHASE)) {
             prefix = "P-";
         } else {
             prefix = "S-";
@@ -95,6 +95,13 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoiceDto.setId(invoice.getId());
     }
 
+    @Override
+    public void delete(Long id) {
+        Invoice invoice = invoiceRepository.findById(id).orElseThrow();
+        invoice.setIsDeleted(true);
+        invoiceProductService.deleteRelatedInvoiceProducts(id);
+        invoiceRepository.save(invoice);
+    }
 
     public UserDTO loggedInUser() {
         return securityService.getLoggedInUser();

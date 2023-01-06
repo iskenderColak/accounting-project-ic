@@ -19,4 +19,6 @@ public interface InvoiceProductService {
     BigDecimal getTotalPriceWithoutTaxByInvoice(String invoiceNo);
 
     void deleteInvoiceProductById(Long invoiceProductId);
+
+    void deleteRelatedInvoiceProducts(Long invoiceId);
 }

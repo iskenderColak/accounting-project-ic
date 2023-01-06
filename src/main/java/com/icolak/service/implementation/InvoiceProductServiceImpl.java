@@ -78,6 +78,16 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
         invoiceProductRepository.delete(mapperUtil.convert(findById(invoiceProductId), new InvoiceProduct()));
     }
 
+    @Override
+    public void deleteRelatedInvoiceProducts(Long invoiceId) {
+        listByInvoiceId(invoiceId)
+                .forEach(dto -> {
+                    InvoiceProduct invoiceProduct = mapperUtil.convert(dto, new InvoiceProduct());
+                    invoiceProduct.setIsDeleted(true);
+                    invoiceProductRepository.save(invoiceProduct);
+                });
+    }
+
     private Long currentCompanyId() {
         return securityService.getLoggedInUser().getCompany().getId();
     }
