@@ -1,7 +1,6 @@
 package com.icolak.service.implementation;
 
 import com.icolak.dto.InvoiceDTO;
-import com.icolak.dto.UserDTO;
 import com.icolak.entity.Invoice;
 import com.icolak.enums.ClientVendorType;
 import com.icolak.enums.InvoiceStatus;
@@ -38,22 +37,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public List<InvoiceDTO> listAllInvoicesByTypeAndCompany(InvoiceType invoiceType) {
-        return invoiceRepository.findAllByInvoiceTypeAndCompanyIdOrderByInvoiceNoDesc(invoiceType, loggedInUser().getCompany().getId()).stream()
-                .map(invoice -> {
-                    InvoiceDTO dto = mapperUtil.convert(invoice, new InvoiceDTO());
-                    dto.setTotal(invoiceProductService.getTotalPriceWithTaxByInvoice(invoice.getInvoiceNo()));
-                    dto.setPrice(invoiceProductService.getTotalPriceWithoutTaxByInvoice(invoice.getInvoiceNo()));
-                    dto.setTax(dto.getTotal().subtract(dto.getPrice()));
-                    return dto;
-                })
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<InvoiceDTO> listAllInvoices() {
-        return invoiceRepository.findAll().stream()
-                .map(invoice -> mapperUtil.convert(invoice, new InvoiceDTO()))
-                .collect(Collectors.toList());
+        return setPriceTaxTotalToInvoice(invoiceRepository.findAllByInvoiceTypeAndCompanyIdOrderByInvoiceNoDesc(invoiceType, currentCompanyId()));
     }
 
     @Override
@@ -103,7 +87,24 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoiceRepository.save(invoice);
     }
 
-    public UserDTO loggedInUser() {
-        return securityService.getLoggedInUser();
+    @Override
+    public List<InvoiceDTO> listLast3ApprovedInvoicesByCompany() {
+        return setPriceTaxTotalToInvoice(invoiceRepository.findTop3ByCompanyIdAndInvoiceStatusOrderByDateDesc(currentCompanyId(), InvoiceStatus.APPROVED));
+    }
+
+    private List<InvoiceDTO> setPriceTaxTotalToInvoice(List<Invoice> list) {
+        return list.stream()
+                .map(invoice -> {
+                    InvoiceDTO dto = mapperUtil.convert(invoice, new InvoiceDTO());
+                    dto.setTotal(invoiceProductService.getTotalPriceWithTaxByInvoice(invoice.getInvoiceNo()));
+                    dto.setPrice(invoiceProductService.getTotalPriceWithoutTaxByInvoice(invoice.getInvoiceNo()));
+                    dto.setTax(dto.getTotal().subtract(dto.getPrice()));
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
+    public Long currentCompanyId() {
+        return securityService.getLoggedInUser().getCompany().getId();
     }
 }

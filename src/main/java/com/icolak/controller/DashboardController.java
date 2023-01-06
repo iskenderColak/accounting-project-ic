@@ -20,9 +20,9 @@ public class DashboardController {
     }
 
     @GetMapping
-    public String getInvoices(Model model) {
+    public String dashboard(Model model) {
 
-        model.addAttribute("invoices", invoiceService.listAllInvoices());
+        model.addAttribute("invoices", invoiceService.listLast3ApprovedInvoicesByCompany());
         model.addAttribute("summaryNumbers", dashboardService.financialSummaryForCurrentCompany());
 
         return "/dashboard";

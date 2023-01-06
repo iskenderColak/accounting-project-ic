@@ -11,8 +11,6 @@ public interface InvoiceService {
 
     List<InvoiceDTO> listAllInvoicesByTypeAndCompany(InvoiceType sales);
 
-    List<InvoiceDTO> listAllInvoices();
-
     boolean existsByClientVendorId(Long id);
 
     String generateInvoiceNo(InvoiceType invoiceType);
@@ -20,5 +18,7 @@ public interface InvoiceService {
     void save(InvoiceDTO invoiceDTO);
 
     void delete(Long id);
+
+    List<InvoiceDTO> listLast3ApprovedInvoicesByCompany();
 }
 
