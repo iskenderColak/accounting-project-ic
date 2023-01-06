@@ -54,7 +54,7 @@ public class PurchaseInvoiceController {
         invoiceDTO.setInvoiceNo(invoiceService.generateInvoiceNo(InvoiceType.PURCHASE));
         invoiceDTO.setDate(LocalDate.now());
         model.addAttribute("newPurchaseInvoice", invoiceDTO);
-        model.addAttribute("vendors", clientVendorService.listClientVendorsByType(ClientVendorType.VENDOR));
+        model.addAttribute("vendors", clientVendorService.listClientVendorsByTypeAndCompany(ClientVendorType.VENDOR));
         return "/invoice/purchase-invoice-create";
     }
 
@@ -74,7 +74,7 @@ public class PurchaseInvoiceController {
     @GetMapping({"/update/{id}", "/addInvoiceProduct/{id}"})
     public String editPurchaseInvoice(@PathVariable("id") Long id, Model model) {
         model.addAttribute("invoice", invoiceService.findById(id));
-        model.addAttribute("vendors", clientVendorService.listClientVendorsByType(ClientVendorType.VENDOR));
+        model.addAttribute("vendors", clientVendorService.listClientVendorsByTypeAndCompany(ClientVendorType.VENDOR));
         model.addAttribute("newInvoiceProduct", new InvoiceProductDTO());
         model.addAttribute("products", productService.listAllProducts());
         model.addAttribute("invoiceProducts", invoiceProductService.listByInvoiceId(id));

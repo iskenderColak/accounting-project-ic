@@ -36,7 +36,7 @@ public class SalesInvoiceController {
         invoiceDTO.setInvoiceNo(invoiceService.generateInvoiceNo(InvoiceType.SALES));
         invoiceDTO.setDate(LocalDate.now());
         model.addAttribute("newSalesInvoice", invoiceDTO);
-        model.addAttribute("clients", clientVendorService.listClientVendorsByType(ClientVendorType.CLIENT));
+        model.addAttribute("clients", clientVendorService.listClientVendorsByTypeAndCompany(ClientVendorType.CLIENT));
         return "/invoice/sales-invoice-create";
     }
 }
