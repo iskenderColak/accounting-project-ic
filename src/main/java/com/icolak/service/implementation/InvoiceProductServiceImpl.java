@@ -33,6 +33,11 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
     }
 
     @Override
+    public InvoiceProductDTO findById(Long id) {
+        return mapperUtil.convert(invoiceProductRepository.findById(id).orElseThrow(), new InvoiceProductDTO());
+    }
+
+    @Override
     public boolean isExistByProductId(Long id) {
         return invoiceProductRepository.existsByProductId(id);
     }
@@ -66,6 +71,11 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
                         .multiply(BigDecimal.valueOf(invoiceProduct.getQuantity())))
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
+    }
+
+    @Override
+    public void deleteInvoiceProductById(Long invoiceProductId) {
+        invoiceProductRepository.delete(mapperUtil.convert(findById(invoiceProductId), new InvoiceProduct()));
     }
 
     private Long currentCompanyId() {

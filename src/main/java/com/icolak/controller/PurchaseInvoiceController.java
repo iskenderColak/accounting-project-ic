@@ -81,6 +81,11 @@ public class PurchaseInvoiceController {
         return "/invoice/purchase-invoice-update";
     }
 
+    @GetMapping("/removeInvoiceProduct/{invoiceId}/{invoiceProductId}")
+    public String deleteProductFromPurchaseInvoice(@PathVariable("invoiceId") Long invoiceId, @PathVariable("invoiceProductId") Long invoiceProductId) {
+        invoiceProductService.deleteInvoiceProductById(invoiceProductId);
+        return "redirect:/purchaseInvoices/update/" + invoiceId;
+    }
 }
 
 
