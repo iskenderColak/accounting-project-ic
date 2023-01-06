@@ -8,6 +8,8 @@ import com.icolak.service.InvoiceService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.time.LocalDate;
@@ -38,5 +40,11 @@ public class SalesInvoiceController {
         model.addAttribute("newSalesInvoice", invoiceDTO);
         model.addAttribute("clients", clientVendorService.listClientVendorsByTypeAndCompany(ClientVendorType.CLIENT));
         return "/invoice/sales-invoice-create";
+    }
+
+    @PostMapping("/create")
+    public String insertSalesInvoice(@ModelAttribute("newSalesInvoice") InvoiceDTO invoiceDTO) {
+        invoiceService.save(invoiceDTO);
+        return "redirect:/salesInvoices/update" + invoiceDTO.getId();
     }
 }
