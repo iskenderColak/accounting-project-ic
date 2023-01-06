@@ -20,5 +20,7 @@ public interface InvoiceService {
     void delete(Long id);
 
     List<InvoiceDTO> listLast3ApprovedInvoicesByCompany();
+
+    void approve(Long id);
 }
 

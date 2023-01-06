@@ -12,6 +12,7 @@ import com.icolak.service.InvoiceService;
 import com.icolak.service.SecurityService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -90,6 +91,14 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     public List<InvoiceDTO> listLast3ApprovedInvoicesByCompany() {
         return setPriceTaxTotalToInvoice(invoiceRepository.findTop3ByCompanyIdAndInvoiceStatusOrderByDateDesc(currentCompanyId(), InvoiceStatus.APPROVED));
+    }
+
+    @Override
+    public void approve(Long id) {
+        Invoice invoice = invoiceRepository.findById(id).orElseThrow();
+        invoice.setInvoiceStatus(InvoiceStatus.APPROVED);
+        invoice.setDate(LocalDate.now());
+        invoiceRepository.save(invoice);
     }
 
     private List<InvoiceDTO> setPriceTaxTotalToInvoice(List<Invoice> list) {

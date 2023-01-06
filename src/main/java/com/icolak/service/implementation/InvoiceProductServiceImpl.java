@@ -104,7 +104,12 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
 
     @Override
     public BigDecimal getTotalProfitLossForCurrentCompany() {
-        return getTotalSalesForCurrentCompany().subtract(getTotalCostForCurrentCompany());
+     //   return getTotalSalesForCurrentCompany().subtract(getTotalCostForCurrentCompany());
+        return invoiceProductRepository.findAllByInvoiceId(currentCompanyId())
+                .stream()
+                .map(InvoiceProduct::getProfitLoss)
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
     }
 
     private Long currentCompanyId() {
