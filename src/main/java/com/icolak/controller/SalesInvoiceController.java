@@ -7,10 +7,7 @@ import com.icolak.service.ClientVendorService;
 import com.icolak.service.InvoiceService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 
@@ -46,5 +43,18 @@ public class SalesInvoiceController {
     public String insertSalesInvoice(@ModelAttribute("newSalesInvoice") InvoiceDTO invoiceDTO) {
         invoiceService.save(invoiceDTO);
         return "redirect:/salesInvoices/update" + invoiceDTO.getId();
+    }
+
+    @GetMapping("/update/{invoiceId}")
+    public String editSalesInvoice(@PathVariable("invoiceId") Long invoiceId, Model model) {
+        model.addAttribute("invoice", invoiceService.findById(invoiceId));
+        model.addAttribute("clients", clientVendorService.listClientVendorsByTypeAndCompany(ClientVendorType.CLIENT));
+        return "/invoice/sales-invoice-update";
+    }
+
+    @PostMapping("/update/{invoiceId}")
+    public String updateSalesInvoice(@PathVariable("invoiceId") Long id) {
+     //   invoiceService.update(id);
+        return "redirect:/salesInvoices/update" + id;
     }
 }

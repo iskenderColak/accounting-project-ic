@@ -17,6 +17,8 @@ public interface InvoiceService {
 
     void save(InvoiceDTO invoiceDTO);
 
+    InvoiceDTO update(InvoiceDTO invoiceDTO);
+
     void delete(Long id);
 
     List<InvoiceDTO> listLast3ApprovedInvoicesByCompany();

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -78,6 +79,20 @@ public class InvoiceServiceImpl implements InvoiceService {
         Invoice invoice = mapperUtil.convert(invoiceDto, new Invoice());
         invoiceRepository.save(invoice);
         invoiceDto.setId(invoice.getId());
+    }
+
+    @Override
+    public InvoiceDTO update(InvoiceDTO invoiceDTO) {
+        Optional<Invoice> dbInvoice = invoiceRepository.findById(invoiceDTO.getId());
+        Invoice convertedInvoice = mapperUtil.convert(invoiceDTO, new Invoice());
+        if (dbInvoice.isPresent()) {
+            convertedInvoice.setInvoiceStatus(dbInvoice.get().getInvoiceStatus());
+            convertedInvoice.setInvoiceType(dbInvoice.get().getInvoiceType());
+            convertedInvoice.setCompany(dbInvoice.get().getCompany());
+            convertedInvoice.setDate(LocalDate.now());
+        }
+        invoiceRepository.save(convertedInvoice);
+        return findById(invoiceDTO.getId());
     }
 
     @Override

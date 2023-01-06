@@ -81,6 +81,12 @@ public class PurchaseInvoiceController {
         return "/invoice/purchase-invoice-update";
     }
 
+    @PostMapping("/update/{id}")
+    public String updatePurchaseInvoice(@ModelAttribute("invoice") InvoiceDTO invoiceDTO) {
+        invoiceService.update(invoiceDTO);
+        return "redirect:/purchaseInvoices/update/" + invoiceDTO.getId();
+    }
+
     @GetMapping("/removeInvoiceProduct/{invoiceId}/{invoiceProductId}")
     public String deleteProductFromPurchaseInvoice(@PathVariable("invoiceId") Long invoiceId, @PathVariable("invoiceProductId") Long invoiceProductId) {
         invoiceProductService.deleteInvoiceProductById(invoiceProductId);
