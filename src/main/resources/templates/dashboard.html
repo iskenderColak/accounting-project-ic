@@ -148,8 +148,7 @@
                                             <span class="progress-right">
                                                 <span class="progress-bar"></span>
                                             </span>
-                                            <div class="progress-value" th:text="'$ 100'">90%</div>
-                                            <!--  +${summaryNumbers.get('totalCost')}  -->
+                                            <div class="progress-value" th:text="'$ ' + ${summaryNumbers.totalCost}">90%</div>
                                         </div>
                                     </div>
                                 </div>
@@ -165,8 +164,7 @@
                                             <span class="progress-right">
                                                 <span class="progress-bar"></span>
                                             </span>
-                                            <div class="progress-value" th:text="'$ 200'">90%</div>
-                                            <!-- +${summaryNumbers.get('totalSales')} -->
+                                            <div class="progress-value" th:text="'$ ' + ${summaryNumbers.totalSales}">90%</div>
                                         </div>
                                     </div>
                                 </div>
@@ -182,8 +180,7 @@
                                             <span class="progress-right">
                                                 <span class="progress-bar"></span>
                                             </span>
-                                            <div class="progress-value" th:text="'$ 300'">90%</div>
-                                            <!--  +${summaryNumbers.get('profitLoss')}  -->
+                                            <div class="progress-value" th:text="'$ ' + ${summaryNumbers.profitLoss}">90%</div>
                                         </div>
                                     </div>
                                 </div>

@@ -21,4 +21,10 @@ public interface InvoiceProductService {
     void deleteInvoiceProductById(Long invoiceProductId);
 
     void deleteRelatedInvoiceProducts(Long invoiceId);
+
+    BigDecimal getTotalSalesForCurrentCompany();
+
+    BigDecimal getTotalCostForCurrentCompany();
+
+    BigDecimal getTotalProfitLossForCurrentCompany();
 }

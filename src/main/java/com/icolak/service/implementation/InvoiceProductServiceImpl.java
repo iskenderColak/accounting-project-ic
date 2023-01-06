@@ -3,6 +3,8 @@ package com.icolak.service.implementation;
 import com.icolak.dto.InvoiceDTO;
 import com.icolak.dto.InvoiceProductDTO;
 import com.icolak.entity.InvoiceProduct;
+import com.icolak.enums.InvoiceStatus;
+import com.icolak.enums.InvoiceType;
 import com.icolak.mapper.MapperUtil;
 import com.icolak.repository.InvoiceProductRepository;
 import com.icolak.service.InvoiceProductService;
@@ -86,6 +88,23 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
                     invoiceProduct.setIsDeleted(true);
                     invoiceProductRepository.save(invoiceProduct);
                 });
+    }
+
+    @Override
+    public BigDecimal getTotalSalesForCurrentCompany() {
+        return calculatePriceWithTax(invoiceProductRepository
+                .findAllByInvoiceCompanyIdAndInvoiceInvoiceTypeAndInvoiceInvoiceStatus(currentCompanyId(), InvoiceType.SALES, InvoiceStatus.APPROVED));
+    }
+
+    @Override
+    public BigDecimal getTotalCostForCurrentCompany() {
+        return calculatePriceWithTax(invoiceProductRepository
+                .findAllByInvoiceCompanyIdAndInvoiceInvoiceTypeAndInvoiceInvoiceStatus(currentCompanyId(), InvoiceType.PURCHASE, InvoiceStatus.APPROVED));
+    }
+
+    @Override
+    public BigDecimal getTotalProfitLossForCurrentCompany() {
+        return getTotalSalesForCurrentCompany().subtract(getTotalCostForCurrentCompany());
     }
 
     private Long currentCompanyId() {
