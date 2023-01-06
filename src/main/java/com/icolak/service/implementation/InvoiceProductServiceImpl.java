@@ -51,7 +51,7 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
 
     @Override
     public void save(InvoiceProductDTO invoiceProductDTO, Long id) {
-        invoiceProductDTO.setProfitLoss(BigDecimal.ZERO);//required calc
+        invoiceProductDTO.setProfitLoss(invoiceProductDTO.getTotal());
         InvoiceDTO invoiceDTO = invoiceService.findById(id);
         invoiceProductDTO.setInvoice(invoiceDTO);
         invoiceProductDTO.setRemainingQuantity(invoiceProductDTO.getQuantity());
