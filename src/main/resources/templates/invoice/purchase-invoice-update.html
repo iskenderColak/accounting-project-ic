@@ -200,7 +200,7 @@
                                                                 <td th:text="${invoiceProduct.tax}"></td>
                                                                 <td th:text="${invoiceProduct.total}"></td>
                                                                 <td class="actions">
-                                                                    <a th:href="@{/purchaseInvoices/removeInvoiceProduct/{invoiceId}/{invoiceProductId}(invoiceId=${invoice.getId()}, invoiceProuductId=${invoiceProduct.getId()})}">
+                                                                    <a th:href="@{/purchaseInvoices/removeInvoiceProduct/{invoiceId}/{invoiceProductId}(invoiceId=${invoice.getId()}, invoiceProductId=${invoiceProduct.getId()})}">
                                                                         <button class="ft-minus btn-danger bg-light-primary" type="submit"></button>
                                                                     </a>
                                                                 </td>
