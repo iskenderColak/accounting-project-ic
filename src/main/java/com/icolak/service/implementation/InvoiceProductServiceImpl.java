@@ -53,10 +53,10 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
 
     @Override
     public void save(InvoiceProductDTO invoiceProductDTO, Long id) {
-        invoiceProductDTO.setProfitLoss(invoiceProductDTO.getTotal());
+        invoiceProductDTO.setProfitLoss(invoiceProductDTO.getTotal()); // TODO: Take a look
         InvoiceDTO invoiceDTO = invoiceService.findById(id);
         invoiceProductDTO.setInvoice(invoiceDTO);
-        invoiceProductDTO.setRemainingQuantity(invoiceProductDTO.getQuantity());
+        invoiceProductDTO.setRemainingQuantity(0);
         invoiceProductRepository.save(mapperUtil.convert(invoiceProductDTO, new InvoiceProduct()));
     }
 

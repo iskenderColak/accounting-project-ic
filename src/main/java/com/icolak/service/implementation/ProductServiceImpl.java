@@ -34,7 +34,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductDTO> listAllProducts() {
+    public List<ProductDTO> listAllProductsByCompany() {
         return productRepository.findAll(Sort.by("category", "name")).stream()
                 .filter(product -> product.getCategory().getCompany().getId().equals(securityService.getLoggedInUser().getCompany().getId()))
                 .map(product -> mapperUtil.convert(product, new ProductDTO()))

@@ -12,7 +12,7 @@ public interface InvoiceProductService {
 
     List<InvoiceProductDTO> listByInvoiceId(Long id);
 
-    void save(InvoiceProductDTO invoiceProductDTO, Long id);
+    void save(InvoiceProductDTO invoiceProductDTO, Long InvoiceId);
 
     BigDecimal getTotalPriceWithTaxByInvoice(String invoiceNo);
 

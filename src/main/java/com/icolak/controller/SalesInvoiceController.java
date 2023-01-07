@@ -1,10 +1,13 @@
 package com.icolak.controller;
 
 import com.icolak.dto.InvoiceDTO;
+import com.icolak.dto.InvoiceProductDTO;
 import com.icolak.enums.ClientVendorType;
 import com.icolak.enums.InvoiceType;
 import com.icolak.service.ClientVendorService;
+import com.icolak.service.InvoiceProductService;
 import com.icolak.service.InvoiceService;
+import com.icolak.service.ProductService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -17,10 +20,14 @@ public class SalesInvoiceController {
 
     private final InvoiceService invoiceService;
     private final ClientVendorService clientVendorService;
+    private final InvoiceProductService invoiceProductService;
+    private final ProductService productService;
 
-    public SalesInvoiceController(InvoiceService invoiceService, ClientVendorService clientVendorService) {
+    public SalesInvoiceController(InvoiceService invoiceService, ClientVendorService clientVendorService, InvoiceProductService invoiceProductService, ProductService productService) {
         this.invoiceService = invoiceService;
         this.clientVendorService = clientVendorService;
+        this.invoiceProductService = invoiceProductService;
+        this.productService = productService;
     }
 
     @GetMapping("/list")
@@ -42,19 +49,46 @@ public class SalesInvoiceController {
     @PostMapping("/create")
     public String insertSalesInvoice(@ModelAttribute("newSalesInvoice") InvoiceDTO invoiceDTO) {
         invoiceService.save(invoiceDTO);
-        return "redirect:/salesInvoices/update" + invoiceDTO.getId();
+        return "redirect:/salesInvoices/update/" + invoiceDTO.getId();
     }
 
-    @GetMapping("/update/{invoiceId}")
-    public String editSalesInvoice(@PathVariable("invoiceId") Long invoiceId, Model model) {
-        model.addAttribute("invoice", invoiceService.findById(invoiceId));
+    @PostMapping("/addInvoiceProduct/{invoiceId}")
+    public String insertProductInvoice(@PathVariable("invoiceId") Long invoiceId, Model model,
+                                       @ModelAttribute("newInvoiceProduct") InvoiceProductDTO invoiceProductDTO) {
+        invoiceProductService.save(invoiceProductDTO, invoiceId);
+        return "redirect:/salesInvoices/update/" + invoiceId;
+    }
+
+    /*
+     model.addAttribute("invoice", invoiceService.findById(invoiceId));
         model.addAttribute("clients", clientVendorService.listClientVendorsByTypeAndCompany(ClientVendorType.CLIENT));
+        model.addAttribute("newInvoiceProduct", new InvoiceProductDTO());
+        model.addAttribute("products", productService.listAllProductsByCompany());
+        model.addAttribute("invoiceProducts", invoiceProductService.listByInvoiceId(invoiceId));
+        try {
+            invoiceProductService.saveAfterCheckingStock(invoiceProductDTO, invoiceId);
+        } catch (IllegalAccessException e) {
+            model.addAttribute("error", e.getMessage());
+            return "/invoice/sales-invoice-update";
+        }
+
+        return "redirect:/salesInvoices/update/" + invoiceId;
+     */
+
+    @GetMapping("/update/{id}")
+    public String editSalesInvoice(@PathVariable("id") Long id, Model model) {
+        model.addAttribute("invoice", invoiceService.findById(id));
+        model.addAttribute("clients", clientVendorService.listClientVendorsByTypeAndCompany(ClientVendorType.CLIENT));
+        model.addAttribute("newInvoiceProduct", new InvoiceProductDTO());
+        model.addAttribute("products", productService.listAllProductsByCompany());
+        model.addAttribute("invoiceProducts", invoiceProductService.listByInvoiceId(id));
         return "/invoice/sales-invoice-update";
     }
 
-    @PostMapping("/update/{invoiceId}")
-    public String updateSalesInvoice(@PathVariable("invoiceId") Long id) {
-     //   invoiceService.update(id);
-        return "redirect:/salesInvoices/update" + id;
+    @PostMapping("/update/{id}")
+    public String updateSalesInvoice(@ModelAttribute("invoice") InvoiceDTO invoiceDTO) {
+        invoiceService.update(invoiceDTO);
+        return "redirect:/salesInvoices/update/" + invoiceDTO.getId();
     }
+
 }
