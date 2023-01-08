@@ -7,6 +7,7 @@ import com.icolak.enums.InvoiceStatus;
 import com.icolak.enums.InvoiceType;
 import com.icolak.mapper.MapperUtil;
 import com.icolak.repository.InvoiceProductRepository;
+import com.icolak.repository.ProductRepository;
 import com.icolak.service.InvoiceProductService;
 import com.icolak.service.InvoiceService;
 import com.icolak.service.SecurityService;
@@ -24,14 +25,15 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
     private final InvoiceProductRepository invoiceProductRepository;
     private final MapperUtil mapperUtil;
     private final InvoiceService invoiceService;
-
     private final SecurityService securityService;
+    private final ProductRepository productRepository;
 
-    public InvoiceProductServiceImpl(InvoiceProductRepository invoiceProductRepository, MapperUtil mapperUtil, @Lazy InvoiceService invoiceService, SecurityService securityService) {
+    public InvoiceProductServiceImpl(InvoiceProductRepository invoiceProductRepository, MapperUtil mapperUtil, @Lazy InvoiceService invoiceService, SecurityService securityService, ProductRepository productRepository) {
         this.invoiceProductRepository = invoiceProductRepository;
         this.mapperUtil = mapperUtil;
         this.invoiceService = invoiceService;
         this.securityService = securityService;
+        this.productRepository = productRepository;
     }
 
     @Override
@@ -58,6 +60,35 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
         invoiceProductDTO.setInvoice(invoiceDTO);
         invoiceProductDTO.setRemainingQuantity(0);
         invoiceProductRepository.save(mapperUtil.convert(invoiceProductDTO, new InvoiceProduct()));
+    }
+/*
+    @Override
+    public void saveAfterCheckingStock(InvoiceProductDTO invoiceProductDTO, Long invoiceId) throws IllegalAccessException {
+        if (checkAndSetTheStockOfProduct(invoiceProductDTO.getProduct().getId(), invoiceProductDTO.getQuantity())) {
+            invoiceProductDTO.setQuantity(invoiceProductDTO.getQuantity());
+        } else {
+            throw new IllegalAccessException("Stock is not enogh !!!");
+        }
+        invoiceProductDTO.setProfitLoss(invoiceProductDTO.getTotal());
+        InvoiceDTO invoiceDTO = invoiceService.findById(invoiceId);
+        invoiceProductDTO.setInvoice(invoiceDTO);
+        invoiceProductDTO.setRemainingQuantity(0); // TODO: 7.01.2023
+        invoiceProductRepository.save(mapperUtil.convert(invoiceProductDTO, new InvoiceProduct()));
+    }
+
+    private boolean checkAndSetTheStockOfProduct(Long productId, Integer quantity) {
+        List<InvoiceProduct> list = invoiceProductRepository
+                .findAllByProductIdAndInvoiceInvoiceTypeAndInvoiceInvoiceStatusOrderByInvoiceDate(productId, InvoiceType.PURCHASE, InvoiceStatus.APPROVED);
+        Integer totalStockOfProduct = list.stream().map(InvoiceProduct::getRemainingQuantity).reduce(Integer::sum).get();
+        return totalStockOfProduct >= quantity;
+    }
+
+ */
+
+    @Override
+    public boolean isStockEnough(InvoiceProductDTO invoiceProductDTO) {
+        int totalStock = productRepository.findByName(invoiceProductDTO.getProduct().getName()).getQuantityInStock();
+        return totalStock >= invoiceProductDTO.getQuantity();
     }
 
     @Override
@@ -120,7 +151,7 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
                     entity.setProfitLoss(calculatePriceWithTax(entity));
                     entity.setRemainingQuantity(entity.getRemainingQuantity() + entity.getQuantity());
                     invoiceProductRepository.save(entity);
-                    });
+                });
     }
 
     private Long currentCompanyId() {

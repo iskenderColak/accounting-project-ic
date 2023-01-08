@@ -14,6 +14,8 @@ public interface InvoiceProductService {
 
     void save(InvoiceProductDTO invoiceProductDTO, Long InvoiceId);
 
+    // void saveAfterCheckingStock(InvoiceProductDTO invoiceProductDTO, Long invoiceId) throws IllegalAccessException;
+
     BigDecimal getTotalPriceWithTaxByInvoice(String invoiceNo);
 
     BigDecimal getTotalPriceWithoutTaxByInvoice(String invoiceNo);
@@ -29,4 +31,6 @@ public interface InvoiceProductService {
     BigDecimal getTotalProfitLossForCurrentCompany();
 
     void setQuantitiesAfterApprovePurchaseInvoice(List<InvoiceProductDTO> invoiceProductDTOList);
+
+    boolean isStockEnough(InvoiceProductDTO invoiceProductDTO);
 }

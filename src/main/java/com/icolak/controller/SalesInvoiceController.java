@@ -10,8 +10,10 @@ import com.icolak.service.InvoiceService;
 import com.icolak.service.ProductService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 
 @Controller
@@ -54,7 +56,16 @@ public class SalesInvoiceController {
 
     @PostMapping("/addInvoiceProduct/{invoiceId}")
     public String insertProductInvoice(@PathVariable("invoiceId") Long invoiceId, Model model,
-                                       @ModelAttribute("newInvoiceProduct") InvoiceProductDTO invoiceProductDTO) {
+                                       @Valid @ModelAttribute("newInvoiceProduct") InvoiceProductDTO invoiceProductDTO, BindingResult bindingResult) {
+        if (!invoiceProductService.isStockEnough(invoiceProductDTO)) {
+            bindingResult.rejectValue("quantity", "","Stock is not enough");
+            model.addAttribute("invoice", invoiceService.findById(invoiceId));
+            model.addAttribute("clients", clientVendorService.listClientVendorsByTypeAndCompany(ClientVendorType.CLIENT));
+            model.addAttribute("products", productService.listAllProductsByCompany());
+            model.addAttribute("invoiceProducts", invoiceProductService.listByInvoiceId(invoiceId));
+            return "/invoice/sales-invoice-update";
+        }
+
         invoiceProductService.save(invoiceProductDTO, invoiceId);
         return "redirect:/salesInvoices/update/" + invoiceId;
     }
