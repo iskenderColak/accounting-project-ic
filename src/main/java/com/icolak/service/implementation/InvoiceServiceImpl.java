@@ -105,7 +105,8 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public List<InvoiceDTO> listLast3ApprovedInvoicesByCompany() {
-        return setPriceTaxTotalToInvoice(invoiceRepository.findTop3ByCompanyIdAndInvoiceStatusOrderByDateDesc(currentCompanyId(), InvoiceStatus.APPROVED));
+        return setPriceTaxTotalToInvoice(invoiceRepository
+                .findTop3ByCompanyIdAndInvoiceStatusOrderByDateDesc(currentCompanyId(), InvoiceStatus.APPROVED));
     }
 
     @Override
@@ -113,6 +114,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         Invoice invoice = invoiceRepository.findById(id).orElseThrow();
         invoice.setInvoiceStatus(InvoiceStatus.APPROVED);
         invoice.setDate(LocalDate.now());
+        invoiceProductService.setQuantitiesAfterApprovePurchaseInvoice(invoiceProductService.listByInvoiceId(id));
         invoiceRepository.save(invoice);
     }
 

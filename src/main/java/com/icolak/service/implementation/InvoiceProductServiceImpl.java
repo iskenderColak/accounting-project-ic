@@ -104,12 +104,23 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
 
     @Override
     public BigDecimal getTotalProfitLossForCurrentCompany() {
-     //   return getTotalSalesForCurrentCompany().subtract(getTotalCostForCurrentCompany());
+        //   return getTotalSalesForCurrentCompany().subtract(getTotalCostForCurrentCompany());
         return invoiceProductRepository.findAllByInvoiceId(currentCompanyId())
                 .stream()
                 .map(InvoiceProduct::getProfitLoss)
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
+    }
+
+    @Override
+    public void setQuantitiesAfterApprovePurchaseInvoice(List<InvoiceProductDTO> invoiceProductDTOList) {
+        invoiceProductDTOList
+                .forEach(dto -> {
+                    InvoiceProduct entity = invoiceProductRepository.findById(dto.getId()).orElseThrow();
+                    entity.setProfitLoss(calculatePriceWithTax(entity));
+                    entity.setRemainingQuantity(entity.getRemainingQuantity() + entity.getQuantity());
+                    invoiceProductRepository.save(entity);
+                    });
     }
 
     private Long currentCompanyId() {
@@ -118,12 +129,16 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
 
     private BigDecimal calculatePriceWithTax(List<InvoiceProduct> list) {
         return list.stream()
-                .map(invoiceProduct -> invoiceProduct.getPrice()
-                        .add(invoiceProduct.getPrice()
-                                .multiply(BigDecimal.valueOf(invoiceProduct.getTax()))
-                                .divide(BigDecimal.valueOf(100), RoundingMode.HALF_EVEN))
-                        .multiply(BigDecimal.valueOf(invoiceProduct.getQuantity())))
+                .map(this::calculatePriceWithTax)
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
+    }
+
+    private BigDecimal calculatePriceWithTax(InvoiceProduct invoiceProduct) {
+        return invoiceProduct.getPrice()
+                .add(invoiceProduct.getPrice()
+                    .multiply(BigDecimal.valueOf(invoiceProduct.getTax()))
+                    .divide(BigDecimal.valueOf(100), RoundingMode.HALF_EVEN))
+                .multiply(BigDecimal.valueOf(invoiceProduct.getQuantity()));
     }
 }

@@ -27,4 +27,6 @@ public interface InvoiceProductService {
     BigDecimal getTotalCostForCurrentCompany();
 
     BigDecimal getTotalProfitLossForCurrentCompany();
+
+    void setQuantitiesAfterApprovePurchaseInvoice(List<InvoiceProductDTO> invoiceProductDTOList);
 }
