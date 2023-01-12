@@ -33,7 +33,6 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public CompanyDTO findById(Long id) {
         return mapperUtil.convert(companyRepository.findById(id).orElseThrow(), new CompanyDTO());
-
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.icolak.service.implementation;
 import com.icolak.dto.InvoiceDTO;
 import com.icolak.dto.InvoiceProductDTO;
 import com.icolak.entity.InvoiceProduct;
+import com.icolak.entity.Product;
 import com.icolak.enums.InvoiceStatus;
 import com.icolak.enums.InvoiceType;
 import com.icolak.mapper.MapperUtil;
@@ -149,7 +150,9 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
                 .forEach(dto -> {
                     InvoiceProduct entity = invoiceProductRepository.findById(dto.getId()).orElseThrow();
                     entity.setProfitLoss(calculatePriceWithTax(entity));
-                    entity.setRemainingQuantity(entity.getRemainingQuantity() + entity.getQuantity());
+                    entity.setRemainingQuantity(entity.getRemainingQuantity() + entity.getQuantity()); // TODO: check if needed
+                    Product product = productRepository.findByName(entity.getProduct().getName());
+                    product.setQuantityInStock(product.getQuantityInStock()+entity.getQuantity());
                     invoiceProductRepository.save(entity);
                 });
     }
