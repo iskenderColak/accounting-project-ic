@@ -38,7 +38,6 @@ class CompanyServiceImplTest {
         CompanyDTO companyDTO = companyService.findById(anyLong());
 
         InOrder inOrder = inOrder(companyRepository, mapperUtil);
-
         inOrder.verify(companyRepository).findById(anyLong());
         inOrder.verify(mapperUtil).convert(any(Company.class), any(CompanyDTO.class));
         Assertions.assertTrue(companyService.findById(anyLong()) instanceof CompanyDTO);
