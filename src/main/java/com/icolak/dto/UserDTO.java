@@ -1,6 +1,7 @@
 package com.icolak.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import javax.validation.constraints.Size;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class UserDTO {
 
     private Long id;
@@ -47,5 +49,4 @@ public class UserDTO {
     private CompanyDTO company;
 
     private Boolean isOnlyAdmin; // (should be true if this user is only admin of any company.)
-
 }

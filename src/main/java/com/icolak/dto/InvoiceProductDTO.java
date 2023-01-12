@@ -1,6 +1,7 @@
 package com.icolak.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +14,7 @@ import java.math.RoundingMode;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class InvoiceProductDTO {
 
     private Long id;

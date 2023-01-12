@@ -2,6 +2,7 @@ package com.icolak.dto;
 
 import com.icolak.enums.CompanyStatus;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import javax.validation.constraints.Size;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class CompanyDTO {
 
     private Long id;
