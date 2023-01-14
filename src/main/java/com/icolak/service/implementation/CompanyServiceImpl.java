@@ -6,6 +6,7 @@ import com.icolak.dto.UserDTO;
 import com.icolak.entity.Company;
 import com.icolak.entity.User;
 import com.icolak.enums.CompanyStatus;
+import com.icolak.exception.CompanyNotFoundException;
 import com.icolak.mapper.MapperUtil;
 import com.icolak.repository.CompanyRepository;
 import com.icolak.service.CompanyService;
@@ -39,7 +40,10 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public CompanyDTO findById(Long id) {
-        return mapperUtil.convert(companyRepository.findById(id).orElseThrow(), new CompanyDTO());
+        return mapperUtil.convert(
+                companyRepository.findById(id)
+                        .orElseThrow(() -> new CompanyNotFoundException("Company not found this id: " + id)),
+                new CompanyDTO());
     }
 
     @Override
@@ -49,10 +53,10 @@ public class CompanyServiceImpl implements CompanyService {
         User dbUser = mapperUtil.convert(currentUserDTO, new User());
         if (dbUser.getRole().getDescription().equals("Root User")) {
             return companyRepository.findAll(Sort.by("title")).stream()
-                .filter(company -> company.getId() != 1)
-                .map(company -> mapperUtil.convert(company, new CompanyDTO()))
-                .sorted(Comparator.comparing(CompanyDTO::getCompanyStatus))
-                .collect(Collectors.toList());
+                    .filter(company -> company.getId() != 1)
+                    .map(company -> mapperUtil.convert(company, new CompanyDTO()))
+                    .sorted(Comparator.comparing(CompanyDTO::getCompanyStatus))
+                    .collect(Collectors.toList());
         }
         return companyRepository.findAll().stream()
                 .filter(company -> dbUser.getCompany().getTitle().equals(company.getTitle()))
