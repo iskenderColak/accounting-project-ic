@@ -1,8 +1,10 @@
 package com.icolak.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
@@ -13,6 +15,8 @@ import javax.persistence.*;
 @Table(name = "users")
 @Where(clause = "is_deleted = false")
 @NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
 public class User extends BaseEntity {
 
     @Column(unique = true)

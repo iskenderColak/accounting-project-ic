@@ -1,12 +1,10 @@
 package com.icolak.entity;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Where;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Getter
 @Setter
@@ -14,7 +12,8 @@ import javax.persistence.Table;
 @Table(name = "roles")
 @Where(clause = "is_deleted = false")
 @NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
 public class Role extends BaseEntity {
-
     private String description;
 }
