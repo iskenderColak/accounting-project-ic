@@ -32,8 +32,8 @@ public class CompanyController {
     public String createCompany(Model model) {
 
         model.addAttribute("newCompany", new CompanyDTO());
-        model.addAttribute("countries", StaticConstants.COUNTRY_LIST);
-
+//        model.addAttribute("countries", StaticConstants.COUNTRY_LIST);
+        model.addAttribute("countries", companyService.getCountries()); // We consume from API
         return "company/company-create";
     }
 

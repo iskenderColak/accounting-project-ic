@@ -21,4 +21,6 @@ public interface CompanyService {
     boolean isTitleExist(String title);
 
     boolean isTitleExistExceptCurrentCompanyTitle(CompanyDTO companyDTO);
+
+    List<String> getCountries();
 }
