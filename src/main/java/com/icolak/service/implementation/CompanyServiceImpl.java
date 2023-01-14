@@ -75,7 +75,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public void activateCompanyStatus(Long id) {
-        Company company = mapperUtil.convert(findById(id), new Company());
+        Company company = companyRepository.findById(id).orElseThrow();
         company.setCompanyStatus(CompanyStatus.ACTIVE);
         userService.makeUserEnableByCompany(company);
         companyRepository.save(company);
@@ -83,7 +83,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public void deactivateCompanyStatus(Long id) {
-        Company company = mapperUtil.convert(findById(id), new Company());
+        Company company = companyRepository.findById(id).orElseThrow();
         company.setCompanyStatus(CompanyStatus.PASSIVE);
         userService.makeUserDisableByCompany(company);
         companyRepository.save(company);

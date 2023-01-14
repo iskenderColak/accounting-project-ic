@@ -29,6 +29,8 @@ class CompanyServiceImplTest {
 
     @Mock
     CompanyRepository companyRepository;
+    @Mock
+    UserServiceImpl userService;
     @InjectMocks
     CompanyServiceImpl companyService;
     @Spy
@@ -61,7 +63,7 @@ class CompanyServiceImplTest {
     @DisplayName("When company save() method is called, company should be saved and the titles of saved " +
             "company and returning company should be equal")
     void testSave() {
-        CompanyDTO companyDTO = TestConstants.getTestCompanyDTO(CompanyStatus.ACTIVE);
+        CompanyDTO companyDTO = TestConstants.getTestCompanyDTO(CompanyStatus.PASSIVE);
         Company company = mapperUtil.convert(companyDTO, new Company());
 
         company.setTitle(TestConstants.SAMPLE_COMPANY1);
@@ -72,5 +74,28 @@ class CompanyServiceImplTest {
         assertEquals(TestConstants.SAMPLE_COMPANY1, resultCompany.getTitle());
         assertEquals(CompanyStatus.ACTIVE, resultCompany.getCompanyStatus());
         verify(companyRepository).save(any());
+    }
+
+    @Test
+    void testActivateCompanyStatus() {
+        Company company = TestConstants.getTestCompany(CompanyStatus.PASSIVE);
+        when(companyRepository.findById(anyLong())).thenReturn(Optional.of(company));
+
+        companyService.activateCompanyStatus(company.getId());
+        userService.makeUserEnableByCompany(company);
+
+        InOrder inOrder = inOrder(userService, companyRepository);
+        inOrder.verify(userService).makeUserEnableByCompany(any());
+        inOrder.verify(companyRepository).save(any());
+        assertEquals(company.getCompanyStatus(), CompanyStatus.ACTIVE);
+    }
+
+    @Test
+    void deactivateCompanyStatus_Test() {
+        Company company = Company.builder().id(TestConstants.SAMPLE_ID1).companyStatus(CompanyStatus.ACTIVE).build();
+        when(companyRepository.findById(TestConstants.SAMPLE_ID1)).thenReturn(Optional.of(company));
+
+        companyService.deactivateCompanyStatus(company.getId());
+        assertEquals(company.getCompanyStatus(), CompanyStatus.PASSIVE);
     }
 }
