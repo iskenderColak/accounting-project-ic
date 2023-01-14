@@ -38,7 +38,6 @@ class CompanyServiceImplTest {
     @DisplayName("Testing findById()")
     void findById() {
         when(companyRepository.findById(anyLong())).thenReturn(Optional.of(new Company()));
-        when(mapperUtil.convert(any(Company.class), any(CompanyDTO.class))).thenReturn(new CompanyDTO());
 
         CompanyDTO companyDTO = companyService.findById(anyLong());
 
@@ -59,7 +58,8 @@ class CompanyServiceImplTest {
     }
 
     @Test
-    @DisplayName("")
+    @DisplayName("When company save() method is called, company should be saved and the titles of saved " +
+            "company and returning company should be equal")
     void testSave() {
         CompanyDTO companyDTO = TestConstants.getTestCompanyDTO(CompanyStatus.ACTIVE);
         Company company = mapperUtil.convert(companyDTO, new Company());
