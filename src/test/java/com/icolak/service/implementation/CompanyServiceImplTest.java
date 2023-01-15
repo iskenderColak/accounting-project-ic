@@ -38,7 +38,7 @@ class CompanyServiceImplTest {
 
     @Test
     @DisplayName("Testing findById()")
-    void findById() {
+    void testFindById() {
         when(companyRepository.findById(anyLong())).thenReturn(Optional.of(new Company()));
 
         CompanyDTO companyDTO = companyService.findById(anyLong());
@@ -60,8 +60,8 @@ class CompanyServiceImplTest {
     }
 
     @Test
-    @DisplayName("When company save() method is called, company should be saved and the titles of saved " +
-            "company and returning company should be equal")
+    @DisplayName("When company save() method is called, company should be saved and the titles of " +
+            "saved company and returning company should be equal")
     void testSave() {
         CompanyDTO companyDTO = TestConstants.getTestCompanyDTO(CompanyStatus.PASSIVE);
         Company company = mapperUtil.convert(companyDTO, new Company());
@@ -77,6 +77,7 @@ class CompanyServiceImplTest {
     }
 
     @Test
+    @DisplayName("When a company is activated its status should be ACTIVE")
     void testActivateCompanyStatus() {
         Company company = TestConstants.getTestCompany(CompanyStatus.PASSIVE);
         when(companyRepository.findById(anyLong())).thenReturn(Optional.of(company));
@@ -91,11 +92,17 @@ class CompanyServiceImplTest {
     }
 
     @Test
-    void deactivateCompanyStatus_Test() {
-        Company company = Company.builder().id(TestConstants.SAMPLE_ID1).companyStatus(CompanyStatus.ACTIVE).build();
+    @DisplayName("When a company is activated its status should be ACTIVE")
+    void testDeactivateCompanyStatus() {
+        Company company = TestConstants.getTestCompany(CompanyStatus.ACTIVE);
         when(companyRepository.findById(TestConstants.SAMPLE_ID1)).thenReturn(Optional.of(company));
 
         companyService.deactivateCompanyStatus(company.getId());
+        userService.makeUserDisableByCompany(company);
+
+        InOrder inOrder = inOrder(userService, companyRepository);
+        inOrder.verify(userService).makeUserDisableByCompany(any());
+        inOrder.verify(companyRepository).save(any());
         assertEquals(company.getCompanyStatus(), CompanyStatus.PASSIVE);
     }
 }
