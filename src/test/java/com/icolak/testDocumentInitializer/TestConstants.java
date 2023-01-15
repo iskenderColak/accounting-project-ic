@@ -21,6 +21,7 @@ public class TestConstants {
     public static final String SAMPLE_LAST_NAME_JOHN = "Smith";
     public static final String SAMPLE_PHONE_NUMBER1 = "+1 (111) 111-1111";
     public static final String SAMPLE_COMPANY1 = "Test Company 1";
+    public static final String SAMPLE_COMPANY2 = "Test Company 2";
     public static final String SAMPLE_CATEGORY1 = "Test Category 1";
     public static final String SAMPLE_PRODUCT1 = "Test Product 1";
     public static final String SAMPLE_PRODUCT2 = "Test Product 2";

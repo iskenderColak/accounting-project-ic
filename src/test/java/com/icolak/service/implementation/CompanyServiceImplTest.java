@@ -72,6 +72,7 @@ class CompanyServiceImplTest {
         var resultCompany = companyService.save(companyDTO);
 
         assertEquals(TestConstants.SAMPLE_COMPANY1, resultCompany.getTitle());
+        // Since when creating a new company we assign status as ACTIVE, the status should be active
         assertEquals(CompanyStatus.ACTIVE, resultCompany.getCompanyStatus());
         verify(companyRepository).save(any());
     }
@@ -92,7 +93,7 @@ class CompanyServiceImplTest {
     }
 
     @Test
-    @DisplayName("When a company is activated its status should be ACTIVE")
+    @DisplayName("When a company is deactivated its status should be PASSIVE")
     void testDeactivateCompanyStatus() {
         Company company = TestConstants.getTestCompany(CompanyStatus.ACTIVE);
         when(companyRepository.findById(TestConstants.SAMPLE_ID1)).thenReturn(Optional.of(company));
@@ -104,5 +105,38 @@ class CompanyServiceImplTest {
         inOrder.verify(userService).makeUserDisableByCompany(any());
         inOrder.verify(companyRepository).save(any());
         assertEquals(company.getCompanyStatus(), CompanyStatus.PASSIVE);
+    }
+
+    @Test
+    @DisplayName("When updating the company should be saved and its status should be as in db as well")
+    void testUpdate() {
+        CompanyDTO companyDTO = TestConstants.getTestCompanyDTO(CompanyStatus.PASSIVE);
+        Company dbCompany = new Company();
+        dbCompany.setCompanyStatus(CompanyStatus.ACTIVE);
+
+        when(companyRepository.findById(companyDTO.getId())).thenReturn(Optional.of(dbCompany));
+
+        // When we called update() method, save method should be called 1 time as well
+        var updatedDTO = companyService.update(companyDTO);
+        verify(companyRepository, times(1)).save(any());
+
+        // When updating the company, the status of dbCompany and updateCompany should be equal,
+        // as we assign the value we have in the db to company status.
+        assertEquals(updatedDTO.getCompanyStatus(), dbCompany.getCompanyStatus());
+        // Since we don't change website, it should be equal to before updating value
+        assertEquals(updatedDTO.getWebsite(), companyDTO.getWebsite());
+    }
+
+    @Test
+    void testIsTitleExist() {
+        companyService.isTitleExist(anyString());
+        verify(companyRepository, times(1)).existsByTitle(anyString());
+/*
+        Company company = TestConstants.getTestCompany(CompanyStatus.ACTIVE);
+        when(companyRepository.save(company)).thenReturn(company);
+        Company savedCompany = companyRepository.save(company);
+        assertTrue(companyService.isTitleExist(savedCompany.getTitle()));
+
+*/
     }
 }
