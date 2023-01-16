@@ -102,4 +102,10 @@ public class SalesInvoiceController {
         return "redirect:/salesInvoices/update/" + invoiceDTO.getId();
     }
 
+    @GetMapping("/removeInvoiceProduct/{invoiceId}/{invoiceProductId}")
+    public String deleteProductFromSalesInvoice(@PathVariable("invoiceId") Long invoiceId, @PathVariable("invoiceProductId") Long invoiceProductId) {
+        invoiceProductService.deleteInvoiceProductById(invoiceProductId);
+        return "redirect:/salesInvoices/update/" + invoiceId;
+    }
+
 }

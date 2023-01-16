@@ -150,7 +150,7 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
                 .forEach(dto -> {
                     InvoiceProduct entity = invoiceProductRepository.findById(dto.getId()).orElseThrow();
                     entity.setProfitLoss(calculatePriceWithTax(entity));
-                    entity.setRemainingQuantity(entity.getRemainingQuantity() + entity.getQuantity()); // TODO: check if needed
+                    entity.setRemainingQuantity(entity.getRemainingQuantity() + entity.getQuantity()); //TODO: check if needed
                     Product product = productRepository.findByName(entity.getProduct().getName());
                     product.setQuantityInStock(product.getQuantityInStock()+entity.getQuantity());
                     invoiceProductRepository.save(entity);
@@ -163,6 +163,7 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
 
     private BigDecimal calculatePriceWithTax(List<InvoiceProduct> list) {
         return list.stream()
+                //.map(invoiceProduct -> calculatePriceWithTax(invoiceProduct))
                 .map(this::calculatePriceWithTax)
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
