@@ -12,13 +12,11 @@ public interface InvoiceProductService {
 
     List<InvoiceProductDTO> listByInvoiceId(Long id);
 
-    void save(InvoiceProductDTO invoiceProductDTO, Long InvoiceId);
+    InvoiceProductDTO save(InvoiceProductDTO invoiceProductDTO, Long InvoiceId);
 
-    // void saveAfterCheckingStock(InvoiceProductDTO invoiceProductDTO, Long invoiceId) throws IllegalAccessException;
+    BigDecimal getTotalPriceWithTaxByInvoice(Long invoiceId);
 
-    BigDecimal getTotalPriceWithTaxByInvoice(String invoiceNo);
-
-    BigDecimal getTotalPriceWithoutTaxByInvoice(String invoiceNo);
+    BigDecimal getTotalPriceWithoutTaxByInvoice(Long invoiceId);
 
     void deleteInvoiceProductById(Long invoiceProductId);
 
@@ -29,8 +27,4 @@ public interface InvoiceProductService {
     BigDecimal getTotalCostForCurrentCompany();
 
     BigDecimal getTotalProfitLossForCurrentCompany();
-
-    void setQuantitiesAfterApprovePurchaseInvoice(List<InvoiceProductDTO> invoiceProductDTOList);
-
-    boolean isStockEnough(InvoiceProductDTO invoiceProductDTO);
 }

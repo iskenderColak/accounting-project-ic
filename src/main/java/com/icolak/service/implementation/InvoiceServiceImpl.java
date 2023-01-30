@@ -1,7 +1,9 @@
 package com.icolak.service.implementation;
 
 import com.icolak.dto.InvoiceDTO;
+import com.icolak.dto.ProductDTO;
 import com.icolak.entity.Invoice;
+import com.icolak.entity.InvoiceProduct;
 import com.icolak.enums.ClientVendorType;
 import com.icolak.enums.InvoiceStatus;
 import com.icolak.enums.InvoiceType;
@@ -9,12 +11,14 @@ import com.icolak.mapper.MapperUtil;
 import com.icolak.repository.InvoiceRepository;
 import com.icolak.service.InvoiceProductService;
 import com.icolak.service.InvoiceService;
+import com.icolak.service.ProductService;
 import com.icolak.service.SecurityService;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,12 +28,14 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final MapperUtil mapperUtil;
     private final InvoiceProductService invoiceProductService;
     private final SecurityService securityService;
+    private final ProductService productService;
 
-    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil, InvoiceProductService invoiceProductService, SecurityService securityService) {
+    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, MapperUtil mapperUtil, InvoiceProductService invoiceProductService, SecurityService securityService, ProductService productService) {
         this.invoiceRepository = invoiceRepository;
         this.mapperUtil = mapperUtil;
         this.invoiceProductService = invoiceProductService;
         this.securityService = securityService;
+        this.productService = productService;
     }
 
     @Override
@@ -39,7 +45,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public List<InvoiceDTO> listAllInvoicesByTypeAndCompany(InvoiceType invoiceType) {
-        return setPriceTaxTotalToInvoice(invoiceRepository.findAllByInvoiceTypeAndCompanyIdOrderByInvoiceNoDesc(invoiceType, currentCompanyId()));
+        return setPriceTaxTotalToInvoice(invoiceRepository.findAllByInvoiceTypeAndCompanyIdOrderByLastUpdateDateTimeDesc(invoiceType, currentCompanyId()));
     }
 
     @Override
@@ -51,6 +57,13 @@ public class InvoiceServiceImpl implements InvoiceService {
     public String generateInvoiceNo(InvoiceType invoiceType) {
         Invoice invoice = invoiceRepository.findTopByCompanyIdAndInvoiceTypeOrderByIdDesc(
                 securityService.getLoggedInUser().getCompany().getId(), invoiceType);
+        if (invoice == null) {
+            if (invoiceType.equals(InvoiceType.PURCHASE)) {
+                return "P-001";
+            } else {
+                return "S-001";
+            }
+        }
         int number = Integer.parseInt(invoice.getInvoiceNo().substring(2)) + 1;
         String prefix;
         if (invoice.getInvoiceType().equals(InvoiceType.PURCHASE)) {
@@ -83,14 +96,12 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public InvoiceDTO update(InvoiceDTO invoiceDTO) {
-        Optional<Invoice> dbInvoice = invoiceRepository.findById(invoiceDTO.getId());
+        Invoice dbInvoice = invoiceRepository.findById(invoiceDTO.getId()).orElseThrow();
         Invoice convertedInvoice = mapperUtil.convert(invoiceDTO, new Invoice());
-        if (dbInvoice.isPresent()) {
-            convertedInvoice.setInvoiceStatus(dbInvoice.get().getInvoiceStatus());
-            convertedInvoice.setInvoiceType(dbInvoice.get().getInvoiceType());
-            convertedInvoice.setCompany(dbInvoice.get().getCompany());
-            convertedInvoice.setDate(LocalDate.now());
-        }
+        convertedInvoice.setInvoiceStatus(dbInvoice.getInvoiceStatus());
+        convertedInvoice.setInvoiceType(dbInvoice.getInvoiceType());
+        convertedInvoice.setCompany(dbInvoice.getCompany());
+        convertedInvoice.setDate(LocalDate.now());
         invoiceRepository.save(convertedInvoice);
         return findById(invoiceDTO.getId());
     }
@@ -110,11 +121,35 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
-    public void approve(Long id) {
+    public void approvePurchaseInvoice(Long id) {
         Invoice invoice = invoiceRepository.findById(id).orElseThrow();
+        List<InvoiceProduct> list = invoice.getInvoiceProducts();
+        list.forEach(entity -> {
+            entity.setProfitLoss(calculatePriceWithTax(entity));
+            entity.setRemainingQuantity(entity.getQuantity());
+            ProductDTO productDTO = productService.findByName(entity.getProduct().getName());
+            productDTO.setQuantityInStock(productDTO.getQuantityInStock() + entity.getRemainingQuantity());
+            productService.save(productDTO);
+        });
         invoice.setInvoiceStatus(InvoiceStatus.APPROVED);
         invoice.setDate(LocalDate.now());
-        invoiceProductService.setQuantitiesAfterApprovePurchaseInvoice(invoiceProductService.listByInvoiceId(id));
+        invoiceRepository.save(invoice);
+    }
+
+    private BigDecimal calculatePriceWithTax(InvoiceProduct invoiceProduct) {
+        return invoiceProduct.getPrice()
+                .add(invoiceProduct.getPrice()
+                        .multiply(BigDecimal.valueOf(invoiceProduct.getTax()))
+                        .divide(BigDecimal.valueOf(100), RoundingMode.HALF_EVEN))
+                .multiply(BigDecimal.valueOf(invoiceProduct.getQuantity()));
+    }
+
+    @Override
+    public void approveSalesInvoice(Long id) {
+        Invoice invoice = invoiceRepository.findById(id).orElseThrow();
+        //TODO
+        invoice.setInvoiceStatus(InvoiceStatus.APPROVED);
+        invoice.setDate(LocalDate.now());
         invoiceRepository.save(invoice);
     }
 
@@ -122,8 +157,8 @@ public class InvoiceServiceImpl implements InvoiceService {
         return list.stream()
                 .map(invoice -> {
                     InvoiceDTO dto = mapperUtil.convert(invoice, new InvoiceDTO());
-                    dto.setTotal(invoiceProductService.getTotalPriceWithTaxByInvoice(invoice.getInvoiceNo()));
-                    dto.setPrice(invoiceProductService.getTotalPriceWithoutTaxByInvoice(invoice.getInvoiceNo()));
+                    dto.setTotal(invoiceProductService.getTotalPriceWithTaxByInvoice(invoice.getId()));
+                    dto.setPrice(invoiceProductService.getTotalPriceWithoutTaxByInvoice(invoice.getId()));
                     dto.setTax(dto.getTotal().subtract(dto.getPrice()));
                     return dto;
                 })

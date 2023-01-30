@@ -23,6 +23,8 @@ public interface InvoiceService {
 
     List<InvoiceDTO> listLast3ApprovedInvoicesByCompany();
 
-    void approve(Long id);
+    void approvePurchaseInvoice(Long id);
+
+    void approveSalesInvoice(Long id);
 }
 

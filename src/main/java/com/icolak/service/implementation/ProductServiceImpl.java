@@ -1,5 +1,6 @@
 package com.icolak.service.implementation;
 
+import com.icolak.dto.InvoiceProductDTO;
 import com.icolak.dto.ProductDTO;
 import com.icolak.entity.Product;
 import com.icolak.mapper.MapperUtil;
@@ -7,6 +8,7 @@ import com.icolak.repository.ProductRepository;
 import com.icolak.service.InvoiceProductService;
 import com.icolak.service.ProductService;
 import com.icolak.service.SecurityService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +23,7 @@ public class ProductServiceImpl implements ProductService {
     private final SecurityService securityService;
     private  final InvoiceProductService invoiceProductService;
 
-    public ProductServiceImpl(ProductRepository productRepository, MapperUtil mapperUtil, SecurityService securityService, InvoiceProductService invoiceProductService) {
+    public ProductServiceImpl(ProductRepository productRepository, MapperUtil mapperUtil, SecurityService securityService, @Lazy InvoiceProductService invoiceProductService) {
         this.productRepository = productRepository;
         this.mapperUtil = mapperUtil;
         this.securityService = securityService;
@@ -42,6 +44,17 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public boolean isStockEnough(InvoiceProductDTO invoiceProductDTO) {
+        int remainingStock = productRepository.findById(invoiceProductDTO.getProduct().getId()).get().getQuantityInStock();
+        return remainingStock >= invoiceProductDTO.getQuantity();
+    }
+
+    @Override
+    public ProductDTO findByName(String name) {
+        return mapperUtil.convert(productRepository.findByName(name), new ProductDTO());
+    }
+
+    @Override
     public boolean isExistByCategoryId(Long id) {
         return productRepository.existsByCategoryId(id);
     }
@@ -49,7 +62,6 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void save(ProductDTO productDTO) {
         Product product = mapperUtil.convert(productDTO, new Product());
-        product.setQuantityInStock(5);
         productRepository.save(product);
     }
 

@@ -4,10 +4,7 @@ import com.icolak.dto.InvoiceDTO;
 import com.icolak.dto.InvoiceProductDTO;
 import com.icolak.enums.ClientVendorType;
 import com.icolak.enums.InvoiceType;
-import com.icolak.service.ClientVendorService;
-import com.icolak.service.InvoiceProductService;
-import com.icolak.service.InvoiceService;
-import com.icolak.service.ProductService;
+import com.icolak.service.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -24,18 +21,32 @@ public class SalesInvoiceController {
     private final ClientVendorService clientVendorService;
     private final InvoiceProductService invoiceProductService;
     private final ProductService productService;
+    private final SecurityService securityService;
 
-    public SalesInvoiceController(InvoiceService invoiceService, ClientVendorService clientVendorService, InvoiceProductService invoiceProductService, ProductService productService) {
+    public SalesInvoiceController(InvoiceService invoiceService, ClientVendorService clientVendorService, InvoiceProductService invoiceProductService, ProductService productService, SecurityService securityService) {
         this.invoiceService = invoiceService;
         this.clientVendorService = clientVendorService;
         this.invoiceProductService = invoiceProductService;
         this.productService = productService;
+        this.securityService = securityService;
     }
 
     @GetMapping("/list")
     public String getSalesInvoices(Model model) {
         model.addAttribute("invoices", invoiceService.listAllInvoicesByTypeAndCompany(InvoiceType.SALES));
         return "/invoice/sales-invoice-list";
+    }
+
+    @GetMapping("/print/{id}")
+    public String printSlesInvoice(@PathVariable("id") Long id, Model model) {
+        InvoiceDTO invoiceDTO = invoiceService.findById(id);
+        invoiceDTO.setTotal(invoiceProductService.getTotalPriceWithTaxByInvoice(invoiceDTO.getId()));
+        invoiceDTO.setPrice(invoiceProductService.getTotalPriceWithoutTaxByInvoice(invoiceDTO.getId()));
+        invoiceDTO.setTax(invoiceDTO.getTotal().subtract(invoiceDTO.getPrice()));
+        model.addAttribute("company", invoiceDTO.getCompany());
+        model.addAttribute("invoice", invoiceDTO);
+        model.addAttribute("invoiceProducts", invoiceProductService.listByInvoiceId(id));
+        return "/invoice/invoice_print";
     }
 
     @GetMapping("/create")
@@ -57,7 +68,7 @@ public class SalesInvoiceController {
     @PostMapping("/addInvoiceProduct/{invoiceId}")
     public String insertProductInvoice(@PathVariable("invoiceId") Long invoiceId, Model model,
                                        @Valid @ModelAttribute("newInvoiceProduct") InvoiceProductDTO invoiceProductDTO, BindingResult bindingResult) {
-        if (!invoiceProductService.isStockEnough(invoiceProductDTO)) {
+        if (!productService.isStockEnough(invoiceProductDTO)) {
             bindingResult.rejectValue("quantity", "","Stock is not enough");
             model.addAttribute("invoice", invoiceService.findById(invoiceId));
             model.addAttribute("clients", clientVendorService.listClientVendorsByTypeAndCompany(ClientVendorType.CLIENT));
@@ -88,6 +99,10 @@ public class SalesInvoiceController {
 
     @GetMapping("/update/{id}")
     public String editSalesInvoice(@PathVariable("id") Long id, Model model) {
+        InvoiceDTO invoiceDTO = invoiceService.findById(id);
+        if(!invoiceDTO.getCompany().equals(securityService.getLoggedInUser().getCompany())) {
+            return "redirect:/salesInvoices/list";
+        }
         model.addAttribute("invoice", invoiceService.findById(id));
         model.addAttribute("clients", clientVendorService.listClientVendorsByTypeAndCompany(ClientVendorType.CLIENT));
         model.addAttribute("newInvoiceProduct", new InvoiceProductDTO());
@@ -111,6 +126,12 @@ public class SalesInvoiceController {
     @GetMapping("/delete/{id}")
     public String deleteSalesInvoice(@PathVariable("id") Long id) {
         invoiceService.delete(id);
+        return "redirect:/salesInvoices/list";
+    }
+
+    @GetMapping("/approve/{id}")
+    public String approveSalesInvoice(@PathVariable("id") Long id) {
+        invoiceService.approveSalesInvoice(id);
         return "redirect:/salesInvoices/list";
     }
 

@@ -1,5 +1,6 @@
 package com.icolak.service;
 
+import com.icolak.dto.InvoiceProductDTO;
 import com.icolak.dto.ProductDTO;
 
 import java.util.List;
@@ -17,4 +18,8 @@ public interface ProductService {
     void delete(Long id);
 
     List<ProductDTO> listAllProductsByCompany();
+
+    boolean isStockEnough(InvoiceProductDTO invoiceProductDTO);
+
+    ProductDTO findByName(String name);
 }

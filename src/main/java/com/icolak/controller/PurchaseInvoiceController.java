@@ -39,8 +39,8 @@ public class PurchaseInvoiceController {
     @GetMapping("/print/{id}")
     public String printPurchaseInvoice(@PathVariable("id") Long id, Model model) {
         InvoiceDTO invoiceDTO = invoiceService.findById(id);
-        invoiceDTO.setTotal(invoiceProductService.getTotalPriceWithTaxByInvoice(invoiceDTO.getInvoiceNo()));
-        invoiceDTO.setPrice(invoiceProductService.getTotalPriceWithoutTaxByInvoice(invoiceDTO.getInvoiceNo()));
+        invoiceDTO.setTotal(invoiceProductService.getTotalPriceWithTaxByInvoice(invoiceDTO.getId()));
+        invoiceDTO.setPrice(invoiceProductService.getTotalPriceWithoutTaxByInvoice(invoiceDTO.getId()));
         invoiceDTO.setTax(invoiceDTO.getTotal().subtract(invoiceDTO.getPrice()));
         model.addAttribute("company", invoiceDTO.getCompany());
         model.addAttribute("invoice", invoiceDTO);
@@ -101,7 +101,7 @@ public class PurchaseInvoiceController {
 
     @GetMapping("/approve/{id}")
     public String approvePurchaseInvoice(@PathVariable("id") Long id) {
-        invoiceService.approve(id);
+        invoiceService.approvePurchaseInvoice(id);
         return "redirect:/purchaseInvoices/list";
     }
 }
