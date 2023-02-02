@@ -81,22 +81,6 @@ public class SalesInvoiceController {
         return "redirect:/salesInvoices/update/" + invoiceId;
     }
 
-    /*
-     model.addAttribute("invoice", invoiceService.findById(invoiceId));
-        model.addAttribute("clients", clientVendorService.listClientVendorsByTypeAndCompany(ClientVendorType.CLIENT));
-        model.addAttribute("newInvoiceProduct", new InvoiceProductDTO());
-        model.addAttribute("products", productService.listAllProductsByCompany());
-        model.addAttribute("invoiceProducts", invoiceProductService.listByInvoiceId(invoiceId));
-        try {
-            invoiceProductService.saveAfterCheckingStock(invoiceProductDTO, invoiceId);
-        } catch (IllegalAccessException e) {
-            model.addAttribute("error", e.getMessage());
-            return "/invoice/sales-invoice-update";
-        }
-
-        return "redirect:/salesInvoices/update/" + invoiceId;
-     */
-
     @GetMapping("/update/{id}")
     public String editSalesInvoice(@PathVariable("id") Long id, Model model) {
         InvoiceDTO invoiceDTO = invoiceService.findById(id);

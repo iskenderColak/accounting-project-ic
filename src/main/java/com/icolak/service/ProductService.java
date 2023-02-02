@@ -22,4 +22,6 @@ public interface ProductService {
     boolean isStockEnough(InvoiceProductDTO invoiceProductDTO);
 
     ProductDTO findByName(String name);
+
+    void setStockAfterSelling(Long productId, int quantitySold);
 }

@@ -112,6 +112,20 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
                 .orElse(BigDecimal.ZERO);
     }
 
+    @Override
+    public List<InvoiceProductDTO> listPurchaseInvoiceProductIncludesProductsOfSalesInvoiceProduct(Long productId) {
+        return invoiceProductRepository
+                .findAllByProductIdAndRemainingQuantityGreaterThanZeroAndPurchaseApprovedInvoiceOrderByLastUpdateDateTime(productId)
+                .stream()
+                .map(invoiceProduct -> mapperUtil.convert(invoiceProduct, new InvoiceProductDTO()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void saveSettingsAfterApproving(InvoiceProductDTO invoiceProductDTO) {
+        invoiceProductRepository.save(mapperUtil.convert(invoiceProductDTO, new InvoiceProduct()));
+    }
+
     private Long currentCompanyId() {
         return securityService.getLoggedInUser().getCompany().getId();
     }

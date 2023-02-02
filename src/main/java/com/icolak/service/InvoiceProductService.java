@@ -27,4 +27,8 @@ public interface InvoiceProductService {
     BigDecimal getTotalCostForCurrentCompany();
 
     BigDecimal getTotalProfitLossForCurrentCompany();
+
+    List<InvoiceProductDTO> listPurchaseInvoiceProductIncludesProductsOfSalesInvoiceProduct(Long productId);
+
+    void saveSettingsAfterApproving(InvoiceProductDTO invoiceProductDTO);
 }

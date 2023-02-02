@@ -1,6 +1,7 @@
 package com.icolak.service.implementation;
 
 import com.icolak.dto.InvoiceDTO;
+import com.icolak.dto.InvoiceProductDTO;
 import com.icolak.dto.ProductDTO;
 import com.icolak.entity.Invoice;
 import com.icolak.entity.InvoiceProduct;
@@ -147,10 +148,48 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     public void approveSalesInvoice(Long id) {
         Invoice invoice = invoiceRepository.findById(id).orElseThrow();
-        //TODO
+        List<InvoiceProduct> salesInvoiceProductList = invoice.getInvoiceProducts();
+        salesInvoiceProductList.forEach(salesInvoiceProduct -> {
+            List<InvoiceProduct> purchaseInvoiceProductList = entityMapper(salesInvoiceProduct.getProduct().getId());
+            int quantitySold = salesInvoiceProduct.getQuantity();
+            int purchaseInvoiceProductIndex = 0;
+            BigDecimal totalCost = BigDecimal.ZERO;
+            while (quantitySold > 0) {
+                InvoiceProduct currentPurchaseInvoiceProduct = purchaseInvoiceProductList.get(purchaseInvoiceProductIndex);
+                int remainingQuantitySold = quantitySold - currentPurchaseInvoiceProduct.getRemainingQuantity();
+                if (remainingQuantitySold > 0) {
+                    totalCost = totalCost.add(getTotalWithTax(currentPurchaseInvoiceProduct, currentPurchaseInvoiceProduct.getRemainingQuantity()));
+                    purchaseInvoiceProductIndex ++;
+                    quantitySold = remainingQuantitySold;
+                    currentPurchaseInvoiceProduct.setRemainingQuantity(0);
+                } else {
+                    totalCost = totalCost.add(getTotalWithTax(currentPurchaseInvoiceProduct, quantitySold));
+                    currentPurchaseInvoiceProduct.setRemainingQuantity(currentPurchaseInvoiceProduct.getRemainingQuantity()-quantitySold);
+                    quantitySold -= currentPurchaseInvoiceProduct.getRemainingQuantity();
+                }
+                invoiceProductService.saveSettingsAfterApproving(mapperUtil.convert(currentPurchaseInvoiceProduct, new InvoiceProductDTO()));
+            }
+            salesInvoiceProduct.setProfitLoss(getTotalWithTax(salesInvoiceProduct, salesInvoiceProduct.getQuantity()).subtract(totalCost));
+            invoiceProductService.saveSettingsAfterApproving(mapperUtil.convert(salesInvoiceProduct, new InvoiceProductDTO()));
+            productService.setStockAfterSelling(salesInvoiceProduct.getProduct().getId(), salesInvoiceProduct.getQuantity());
+        });
         invoice.setInvoiceStatus(InvoiceStatus.APPROVED);
         invoice.setDate(LocalDate.now());
         invoiceRepository.save(invoice);
+    }
+
+    private BigDecimal getTotalWithTax(InvoiceProduct invoiceProduct, int remainingQuantity) {
+        BigDecimal beforeTax = BigDecimal.valueOf(remainingQuantity).multiply(invoiceProduct.getPrice());
+        BigDecimal taxValue = BigDecimal.valueOf(invoiceProduct.getTax()).multiply(beforeTax).divide(BigDecimal.valueOf(100L));
+        return beforeTax.add(taxValue);
+    }
+
+    private List<InvoiceProduct> entityMapper(Long productId) {
+        return invoiceProductService
+                .listPurchaseInvoiceProductIncludesProductsOfSalesInvoiceProduct(productId)
+                .stream()
+                .map(invoiceProductDTO -> mapperUtil.convert(invoiceProductDTO, new InvoiceProduct()))
+                .collect(Collectors.toList());
     }
 
     private List<InvoiceDTO> setPriceTaxTotalToInvoice(List<Invoice> list) {

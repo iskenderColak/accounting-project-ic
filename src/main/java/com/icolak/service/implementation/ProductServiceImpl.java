@@ -55,6 +55,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public void setStockAfterSelling(Long productId, int quantitySold) {
+        Product product = productRepository.findById(productId).get();
+        product.setQuantityInStock(product.getQuantityInStock() - quantitySold);
+    }
+
+    @Override
     public boolean isExistByCategoryId(Long id) {
         return productRepository.existsByCategoryId(id);
     }
