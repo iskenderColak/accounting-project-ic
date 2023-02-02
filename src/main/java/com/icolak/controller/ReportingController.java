@@ -21,4 +21,10 @@ public class ReportingController {
         model.addAttribute("monthlyProfitLossDataMap", reportingService.getAllProfitLossPerMonth());
         return "report/profit-loss-report";
     }
+
+    @GetMapping("/stockData")
+    public String listStockData(Model model) {
+        model.addAttribute("invoiceProducts", reportingService.getAllInvoiceProductsThatApprovedForCurrentCompany());
+        return "report/stock-report";
+    }
 }

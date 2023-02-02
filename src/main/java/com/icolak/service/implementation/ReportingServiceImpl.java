@@ -6,6 +6,7 @@ import com.icolak.service.ReportingService;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -27,5 +28,10 @@ public class ReportingServiceImpl implements ReportingService {
                         .getYear() + " " + invoiceProductDTO.getInvoice()
                         .getDate()
                         .getMonth(), InvoiceProductDTO::getProfitLoss, (BigDecimal::add)));
+    }
+
+    @Override
+    public List<InvoiceProductDTO> getAllInvoiceProductsThatApprovedForCurrentCompany() {
+        return invoiceProductService.getAllApprovedInvoicesForCurrentCompany();
     }
 }
