@@ -126,7 +126,6 @@ public class InvoiceServiceImpl implements InvoiceService {
         Invoice invoice = invoiceRepository.findById(id).orElseThrow();
         List<InvoiceProduct> list = invoice.getInvoiceProducts();
         list.forEach(entity -> {
-            entity.setProfitLoss(calculatePriceWithTax(entity));
             entity.setRemainingQuantity(entity.getQuantity());
             ProductDTO productDTO = productService.findByName(entity.getProduct().getName());
             productDTO.setQuantityInStock(productDTO.getQuantityInStock() + entity.getRemainingQuantity());
@@ -160,12 +159,13 @@ public class InvoiceServiceImpl implements InvoiceService {
                 if (remainingQuantitySold > 0) {
                     totalCost = totalCost.add(getTotalWithTax(currentPurchaseInvoiceProduct, currentPurchaseInvoiceProduct.getRemainingQuantity()));
                     purchaseInvoiceProductIndex ++;
-                    quantitySold = remainingQuantitySold;
+                    quantitySold -= currentPurchaseInvoiceProduct.getRemainingQuantity();
                     currentPurchaseInvoiceProduct.setRemainingQuantity(0);
                 } else {
                     totalCost = totalCost.add(getTotalWithTax(currentPurchaseInvoiceProduct, quantitySold));
-                    currentPurchaseInvoiceProduct.setRemainingQuantity(currentPurchaseInvoiceProduct.getRemainingQuantity()-quantitySold);
+                    int quantityBeforeReduction = quantitySold;
                     quantitySold -= currentPurchaseInvoiceProduct.getRemainingQuantity();
+                    currentPurchaseInvoiceProduct.setRemainingQuantity(currentPurchaseInvoiceProduct.getRemainingQuantity()-quantityBeforeReduction);
                 }
                 invoiceProductService.saveSettingsAfterApproving(mapperUtil.convert(currentPurchaseInvoiceProduct, new InvoiceProductDTO()));
             }
