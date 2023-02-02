@@ -126,6 +126,11 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
         invoiceProductRepository.save(mapperUtil.convert(invoiceProductDTO, new InvoiceProduct()));
     }
 
+    @Override
+    public List<InvoiceProductDTO> getAllApprovedInvoicesForCurrentCompany() {
+        return null;
+    }
+
     private Long currentCompanyId() {
         return securityService.getLoggedInUser().getCompany().getId();
     }

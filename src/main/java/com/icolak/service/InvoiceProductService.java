@@ -4,6 +4,7 @@ import com.icolak.dto.InvoiceProductDTO;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 public interface InvoiceProductService {
     InvoiceProductDTO findById(Long id);
@@ -31,4 +32,6 @@ public interface InvoiceProductService {
     List<InvoiceProductDTO> listPurchaseInvoiceProductIncludesProductsOfSalesInvoiceProduct(Long productId);
 
     void saveSettingsAfterApproving(InvoiceProductDTO invoiceProductDTO);
+
+    List<InvoiceProductDTO> getAllApprovedInvoicesForCurrentCompany();
 }
