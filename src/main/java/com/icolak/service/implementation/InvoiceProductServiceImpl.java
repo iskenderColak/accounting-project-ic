@@ -104,7 +104,7 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
 
     @Override
     public BigDecimal getTotalProfitLossForCurrentCompany() {
-        return invoiceProductRepository.findAllByInvoiceId(currentCompanyId())
+        return invoiceProductRepository.findAllByInvoiceCompanyId(currentCompanyId())
                 .stream()
                 .map(InvoiceProduct::getProfitLoss)
                 .reduce(BigDecimal::add)
@@ -127,7 +127,9 @@ public class InvoiceProductServiceImpl implements InvoiceProductService {
 
     @Override
     public List<InvoiceProductDTO> getAllApprovedInvoicesForCurrentCompany() {
-        return null;
+        return invoiceProductRepository.findByInvoice_Company_IdAndInvoice_InvoiceStatusIsApprovedOrderByInvoice_DateDesc(currentCompanyId())
+                .stream().map(dto -> mapperUtil.convert(dto, new InvoiceProductDTO()))
+                .collect(Collectors.toList());
     }
 
     private Long currentCompanyId() {
